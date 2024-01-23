@@ -124,11 +124,16 @@ function OrderSearch() {
 
   function extractDriveLinks(content) {
     const driveLinkRegex =
-      /https:\/\/drive\.google\.com\/drive\/[a-zA-Z0-9?=_&/-]*/g;
-    return (content.match(driveLinkRegex) || []).map((link, index) => ({
-      url: link,
-      text: `Drive Link ${index + 1}`,
-    }));
+      /(\w+)\s+(https:\/\/drive\.google\.com\/drive\/[a-zA-Z0-9?=_&/-]*)/g;
+    let match;
+    const links = [];
+    while ((match = driveLinkRegex.exec(content)) !== null) {
+      links.push({
+        descriptor: match[1],
+        url: match[2],
+      });
+    }
+    return links;
   }
 
   return (
@@ -213,14 +218,15 @@ function OrderSearch() {
                             {order.notes.flatMap((note, noteIndex) =>
                               extractDriveLinks(note.content).map(
                                 (link, linkIndex) => (
-                                  <a
-                                    key={`${noteIndex}-${linkIndex}`}
-                                    href={link.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    {link.text}
-                                  </a>
+                                  <div key={`${noteIndex}-${linkIndex}`}>
+                                    <a
+                                      href={link.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {link.descriptor}
+                                    </a>
+                                  </div>
                                 )
                               )
                             )}
