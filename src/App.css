@@ -1,0 +1,103 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto; /* Keeps horizontal centering */
+  padding: 1rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Add this in your CSS file */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px; /* Adjust as needed */
+
+  align-items: center; /* Vertically center */
+}
+
+.note-accordion {
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.note-content {
+  display: none;
+  margin-top: 5px;
+}
+
+.note-accordion.open .note-content {
+  display: block;
+}
+
+.billing-section {
+  border-top: 1px solid rgba(0, 0, 0, 0.1); /* Faint border */
+  padding-top: 10px; /* Spacing above the border */
+}
+
+.shipping-section {
+  padding-top: 10px;
+  border: solid rgba(2, 156, 97, 0.2);
+}
+
+.section-container {
+  border-top: 1px solid rgba(0, 0, 0, 0.1); /* Thin, light top border */
+  padding-top: 10px; /* Space above the border */
+  margin-top: 10px; /* Space above the container */
+}
+
+.notes-container {
+  border-top: 1px solid rgba(0, 0, 0, 0.1); /* Thin, light top border */
+  padding-top: 10px; /* Space above the border */
+  margin-top: 10px; /* Space above the container */
+  text-align: center;
+}
+
+.accordion-section:active {
+  background-color: grey; /* Replace 'grey' with the specific color code you're using */
+}
+
+.order-info {
+  padding-top: 10px;
+}
+.billing-phone {
+  padding-top: 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+.active-section {
+  background-color: #f0f0f0; /* Your desired highlight color */
+}
