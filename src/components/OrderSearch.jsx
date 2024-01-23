@@ -216,7 +216,14 @@ function OrderSearch() {
                           </Accordion>
                           <div className="section-container">
                             <div>
-                              <span>Drive Links from Notes</span>
+                              <span>
+                                {order.notes.some(
+                                  (note) =>
+                                    extractDriveLinks(note.content).length > 0
+                                )
+                                  ? "Drive Links from Notes:"
+                                  : "No Drive Links Found"}
+                              </span>
                             </div>
                             {order.notes.flatMap((note, noteIndex) =>
                               extractDriveLinks(note.content).map(
