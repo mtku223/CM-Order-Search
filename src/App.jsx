@@ -1,6 +1,9 @@
 import "./App.css";
 import OrderSearch from "./components/OrderSearch";
 import { useFrontContext } from "./providers/frontContext";
+import ReactGA from "react-ga4";
+
+ReactGA.initialize("G-9FCBZSPY3M");
 
 function App() {
   const context = useFrontContext();

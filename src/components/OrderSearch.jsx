@@ -10,7 +10,7 @@ import {
   Accordion,
   AccordionSection,
 } from "@frontapp/ui-kit";
-import ApplicationMessageId from "@frontapp/plugin-sdk";
+import ReactGA from "react-ga4";
 
 function OrderSearch() {
   const context = useFrontContext();
@@ -29,6 +29,10 @@ function OrderSearch() {
     });
   }, [context]);
 
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: window.location.pathname });
+  }, []);
+
   const handleSearch = async (e) => {
     e.preventDefault(); // Prevent the default form submit action
 
@@ -41,6 +45,14 @@ function OrderSearch() {
     const serverUrl = `/.netlify/functions/search?searchTerm=${encodeURIComponent(
       modifiedSearchTerm
     )}`;
+
+    ReactGA.event({
+      category: "Search",
+      action: "Performed a search",
+      label: searchTerm,
+      nonInteraction: true,
+      dimension1: context.teammate ? context.teammate.id : "anonymous", // Example
+    });
 
     try {
       const response = await fetch(serverUrl);
@@ -68,9 +80,6 @@ function OrderSearch() {
       console.error("There was an error fetching the order data:", error);
     }
   };
-
-  const user =
-    context.teammate && context.teammate.name ? context.teammate.name : "world";
 
   const onCreateDraftClick = () => {
     if (!latestMessageId) return;
@@ -168,6 +177,16 @@ function OrderSearch() {
                             <span>{order.billing_details.company}</span>
                           </div>
                         )}
+                        <div className="info-row">
+                          <span>Order Amount:</span>{" "}
+                          <span>{order.item_amount}</span>
+                        </div>
+                        {order.shipping_method && (
+                          <div className="info-row">
+                            <span>Shipping Method:</span>
+                            <span>{order.shipping_method.name}</span>
+                          </div>
+                        )}
                         <div className="notes-container">
                           <Accordion expandMode="multi">
                             {order.notes.map((note, index) => (
@@ -190,7 +209,9 @@ function OrderSearch() {
                                   Tracking:{" "}
                                   {shipment.tracking_number.startsWith("1Z") ? (
                                     <a
-                                      href={`https://www.ups.com/track?tracknum=${shipment.tracking_number}`}
+                                      href={`https://www.ups.com/track?tracknum=${
+                                        shipment.tracking_number.split(" ")[0]
+                                      }`}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                     >
@@ -220,54 +241,31 @@ function OrderSearch() {
                 )}
                 {selectedTab === "Line Items" && (
                   <Accordion expandMode="multi">
-                    {order.order_lines.map((lineItem, index) => (
-                      <AccordionSection
-                        key={index}
-                        id={`line-item-${index}`}
-                        title={`${lineItem.product_name}`}
-                      >
-                        <div>
-                          <div className="info-row">
-                            <span>Quantity:</span> <span>{lineItem.qty}</span>
-                          </div>
-                          <div className="info-row">
-                            <span>Unit Price:</span>{" "}
-                            <span>${lineItem.unit_price}</span>
-                          </div>
-                          <div className="info-row">
-                            <span>Product Color:</span>
-                            <span>
-                              {lineItem.product_color?.name ||
-                                lineItem.product_freeform_color}
-                            </span>
-                          </div>
-                          {lineItem.fields.length > 0 &&
-                            lineItem.fields[0].options.length > 0 && (
-                              <div className="info-row">
-                                <span>SKU:</span>{" "}
-                                <span>{lineItem.fields[0].options[0].sku}</span>
-                              </div>
-                            )}
-                          {lineItem.fields.map((field, fieldIndex) => (
-                            <div key={fieldIndex}>
-                              {lineItem.fields.map((field, fieldIndex) => (
-                                <div key={fieldIndex} className="info-row">
-                                  <span>Sizing:</span>
-                                  <span>
-                                    {field.options
-                                      .map(
-                                        (option) =>
-                                          `${option.code} x ${option.qty}`
-                                      )
-                                      .join(", ")}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          ))}
-                        </div>
-                      </AccordionSection>
-                    ))}
+                    {/* Display regular line items first */}
+                    {order.order_lines
+                      .filter((lineItem) => lineItem.fields.length > 0)
+                      .map((lineItem, index) => (
+                        <AccordionSection
+                          key={index}
+                          id={`line-item-${index}`}
+                          title={`${lineItem.product_name}`}
+                        >
+                          {/* Regular line item details here */}
+                        </AccordionSection>
+                      ))}
+
+                    {/* Display extra charges (empty fields) last */}
+                    {order.order_lines
+                      .filter((lineItem) => lineItem.fields.length === 0)
+                      .map((lineItem, index) => (
+                        <AccordionSection
+                          key={index}
+                          id={`extra-charge-${index}`}
+                          title={`${lineItem.product_name}`}
+                        >
+                          {/* Extra charge details here */}
+                        </AccordionSection>
+                      ))}
                   </Accordion>
                 )}
                 {selectedTab === "Billing & Shipping" && (
