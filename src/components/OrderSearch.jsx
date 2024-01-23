@@ -300,7 +300,7 @@ function OrderSearch() {
                           key={index}
                           id={`extra-charge-${index}`}
                           title={`${lineItem.product_name}`}
-                          className="line-itme-extra"
+                          className="line-item-extra"
                         >
                           <div className="line-item-details">
                             <div className="info-row">
