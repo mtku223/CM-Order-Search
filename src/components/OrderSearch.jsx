@@ -122,6 +122,15 @@ function OrderSearch() {
   const [selectedTab, setSelectedTab] = useState("Order Information");
   const tabs = ["Order Info", "Line Items", "Billing & Shipping"];
 
+  function extractDriveLinks(content) {
+    const driveLinkRegex =
+      /https:\/\/drive\.google\.com\/drive\/[a-zA-Z0-9?=_&/-]*/g;
+    return (content.match(driveLinkRegex) || []).map((link, index) => ({
+      url: link,
+      text: `Drive Link ${index + 1}`,
+    }));
+  }
+
   return (
     <PluginLayout>
       <div
@@ -200,6 +209,22 @@ function OrderSearch() {
                               </AccordionSection>
                             ))}
                           </Accordion>
+                          <div className="section-container">
+                            {order.notes.flatMap((note, noteIndex) =>
+                              extractDriveLinks(note.content).map(
+                                (link, linkIndex) => (
+                                  <a
+                                    key={`${noteIndex}-${linkIndex}`}
+                                    href={link.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    {link.text}
+                                  </a>
+                                )
+                              )
+                            )}
+                          </div>
                         </div>
                         {order.shipments && (
                           <div className="section-container">
@@ -291,9 +316,6 @@ function OrderSearch() {
                           </div>
                         </AccordionSection>
                       ))}
-                    <div className="border">
-                      <br> </br>
-                    </div>
                     {/* Display extra charges (empty fields) last */}
                     {order.order_lines
                       .filter((lineItem) => lineItem.fields.length === 0)
