@@ -291,7 +291,7 @@ function OrderSearch() {
                           </div>
                         </AccordionSection>
                       ))}
-
+                    <div className="border"></div>
                     {/* Display extra charges (empty fields) last */}
                     {order.order_lines
                       .filter((lineItem) => lineItem.fields.length === 0)
