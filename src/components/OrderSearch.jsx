@@ -215,6 +215,9 @@ function OrderSearch() {
                             ))}
                           </Accordion>
                           <div className="section-container">
+                            <div>
+                              <span>Drive Links from Notes</span>
+                            </div>
                             {order.notes.flatMap((note, noteIndex) =>
                               extractDriveLinks(note.content).map(
                                 (link, linkIndex) => (
