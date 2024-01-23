@@ -162,15 +162,15 @@ function OrderSearch() {
                         <div className="info-row">
                           <span>Order ID:</span> <span>{order.order_id}</span>
                         </div>
-                        <div className="info-row">
-                          <span>Job Name:</span> <span>{order.job_name}</span>
-                        </div>
                         {order.created_by && (
                           <div className="info-row">
                             <span>Created By:</span>{" "}
                             <span>{order.created_by.firstname}</span>
                           </div>
                         )}
+                        <div className="info-row">
+                          <span>Job Name:</span> <span>{order.job_name}</span>
+                        </div>
                         {order.billing_details && (
                           <div className="info-row">
                             <span>Company Name:</span>
@@ -179,7 +179,7 @@ function OrderSearch() {
                         )}
                         <div className="info-row">
                           <span>Order Amount:</span>{" "}
-                          <span>{order.item_amount}</span>
+                          <span>${order.item_amount}</span>
                         </div>
                         {order.shipping_method && (
                           <div className="info-row">
@@ -249,8 +249,46 @@ function OrderSearch() {
                           key={index}
                           id={`line-item-${index}`}
                           title={`${lineItem.product_name}`}
+                          className="line-item-main"
                         >
-                          {/* Regular line item details here */}
+                          <div className="line-item-details">
+                            <div className="info-row">
+                              <span>Quantity:</span> <span>{lineItem.qty}</span>
+                            </div>
+                            <div className="info-row">
+                              <span>Unit Price:</span>{" "}
+                              <span>${lineItem.unit_price}</span>
+                            </div>
+                            <div className="info-row">
+                              <span>Product Color:</span>
+                              <span>
+                                {lineItem.product_color?.name ||
+                                  lineItem.product_freeform_color}
+                              </span>
+                            </div>
+                            {lineItem.fields.length > 0 &&
+                              lineItem.fields[0].options.length > 0 && (
+                                <div className="info-row">
+                                  <span>SKU:</span>{" "}
+                                  <span>
+                                    {lineItem.fields[0].options[0].sku}
+                                  </span>
+                                </div>
+                              )}
+                            {lineItem.fields.map((field, fieldIndex) => (
+                              <div key={fieldIndex} className="info-row">
+                                <span>Sizing:</span>
+                                <span>
+                                  {field.options
+                                    .map(
+                                      (option) =>
+                                        `${option.code} x ${option.qty}`
+                                    )
+                                    .join(", ")}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         </AccordionSection>
                       ))}
 
@@ -262,8 +300,17 @@ function OrderSearch() {
                           key={index}
                           id={`extra-charge-${index}`}
                           title={`${lineItem.product_name}`}
+                          className="line-itme-extra"
                         >
-                          {/* Extra charge details here */}
+                          <div className="line-item-details">
+                            <div className="info-row">
+                              <span>Quantity:</span> <span>{lineItem.qty}</span>
+                            </div>
+                            <div className="info-row">
+                              <span>Unit Price:</span>{" "}
+                              <span>${lineItem.unit_price}</span>
+                            </div>
+                          </div>
                         </AccordionSection>
                       ))}
                   </Accordion>
