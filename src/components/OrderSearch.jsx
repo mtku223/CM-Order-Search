@@ -213,17 +213,20 @@ function OrderSearch() {
                             <span>{order.created_by.firstname}</span>
                           </div>
                         )}
-                        {order.order_lines[0].production_assigned_to && (
-                          <div className="info-row">
-                            <span>Production Lead:</span>
-                            <span>
-                              {
-                                order.order_lines[0].production_assigned_to[0]
-                                  .firstname
-                              }
-                            </span>
-                          </div>
-                        )}
+                        {order.order_lines.length > 0 &&
+                          order.order_lines[0].production_assigned_to &&
+                          order.order_lines[0].production_assigned_to.length >
+                            0 && (
+                            <div className="info-row">
+                              <span>Production Lead:</span>
+                              <span>
+                                {
+                                  order.order_lines[0].production_assigned_to[0]
+                                    .firstname
+                                }
+                              </span>
+                            </div>
+                          )}
                         <div className="info-row">
                           <span>Job Name:</span> <span>{order.job_name}</span>
                         </div>
