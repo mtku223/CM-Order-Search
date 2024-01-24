@@ -40,8 +40,10 @@ function OrderSearch() {
     ReactGA.send({ hitType: "pageview", page: window.location.pathname });
   }, []);
 
-  const handleSearch = async (e) => {
-    e.preventDefault(); // Prevent the default form submit action
+  const handleSearch = async (e, searchString) => {
+    if (e) e.preventDefault(); // Prevent the default form submit action
+
+    const searchQuery = searchString || searchTerm;
 
     let modifiedSearchTerm = searchTerm;
     setSelectedTab("Order Info");
@@ -54,9 +56,12 @@ function OrderSearch() {
     )}`;
 
     setSearchHistory((prevHistory) => {
-      const updatedHistory = [modifiedSearchTerm, ...prevHistory.slice(0, 6)];
-      localStorage.setItem("searchHistory", JSON.stringify(updatedHistory));
-      return updatedHistory;
+      const newHistory = [
+        searchQuery,
+        ...prevHistory.filter((term) => term !== searchQuery),
+      ].slice(0, 7);
+      localStorage.setItem("searchHistory", JSON.stringify(newHistory));
+      return newHistory;
     });
 
     if (window.gtag) {
@@ -93,6 +98,11 @@ function OrderSearch() {
     } catch (error) {
       console.error("There was an error fetching the order data:", error);
     }
+  };
+
+  const handleReselectSearchTerm = (term) => {
+    setSearchTerm(term);
+    handleSearch(term); // Directly call handleSearch with the term
   };
 
   const onCreateDraftClick = () => {
@@ -444,7 +454,17 @@ function OrderSearch() {
           )}
           <Accordion expandMode="multi">
             <AccordionSection id="search-history" title="Recent Searches">
-              <div>{searchHistory.join(", ")}</div>
+              <div>
+                {searchHistory.map((term, index) => (
+                  <span
+                    key={index}
+                    onClick={() => handleReselectSearchTerm(term)}
+                    style={{ cursor: "pointer", marginRight: "10px" }}
+                  >
+                    {term}
+                  </span>
+                ))}
+              </div>
             </AccordionSection>
           </Accordion>
         </PluginFooter>
