@@ -134,7 +134,7 @@ function OrderSearch() {
 
   function extractDriveLinks(content) {
     const driveLinkRegex =
-      /(\w+)\s+(https:\/\/drive\.google\.com\/drive\/[a-zA-Z0-9?=_&/-]*)/g;
+      /(\w+)\s+(https:\/\/drive\.google\.com\/drive\/[a-zA-Z0-9?=_&/-]+)/g;
     let match;
     const links = [];
     while ((match = driveLinkRegex.exec(content)) !== null) {
