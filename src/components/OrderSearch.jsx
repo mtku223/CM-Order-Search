@@ -11,6 +11,7 @@ import {
   AccordionSection,
 } from "@frontapp/ui-kit";
 import ReactGA from "react-ga4";
+import OrderStatusBubble from "./OrderStatus";
 
 function OrderSearch() {
   const context = useFrontContext();
@@ -201,6 +202,7 @@ function OrderSearch() {
                             <span>{order.shipping_method.name}</span>
                           </div>
                         )}
+                        <OrderStatusBubble status={order.order_status} />
                         <div className="notes-container">
                           <Accordion expandMode="multi">
                             {order.notes.map((note, index) => (
