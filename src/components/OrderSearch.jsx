@@ -20,6 +20,7 @@ function OrderSearch() {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderData, setOrderData] = useState(null);
   const [latestMessageId, setLatestMessageId] = useState(undefined);
+  const [searchHistory, setSearchHistory] = useState([]);
 
   useEffect(() => {
     context.listMessages().then((response) => {
@@ -49,13 +50,19 @@ function OrderSearch() {
       modifiedSearchTerm
     )}`;
 
-    ReactGA.event({
-      category: "Search",
-      action: "Performed a search",
-      label: searchTerm,
-      nonInteraction: true,
-      dimension1: context.teammate ? context.teammate.id : "anonymous", // Example
-    });
+    setSearchHistory((prevHistory) => [
+      modifiedSearchTerm,
+      ...prevHistory.slice(0, 6),
+    ]);
+
+    if (window.gtag) {
+      window.gtag("event", "search", {
+        event_category: "Plugin Interactions",
+        event_label: "Search Performed",
+        search_term: modifiedSearchTerm,
+        value: 1, // If there's a quantifiable value associated with the event
+      });
+    }
 
     try {
       const response = await fetch(serverUrl);
@@ -183,6 +190,17 @@ function OrderSearch() {
                           <div className="info-row">
                             <span>Created By:</span>{" "}
                             <span>{order.created_by.firstname}</span>
+                          </div>
+                        )}
+                        {order.order_lines[0].production_assigned_to && (
+                          <div className="info-row">
+                            <span>Production Lead:</span>
+                            <span>
+                              {
+                                order.order_lines[0].production_assigned_to[0]
+                                  .firstname
+                              }
+                            </span>
                           </div>
                         )}
                         <div className="info-row">
@@ -415,6 +433,15 @@ function OrderSearch() {
           </>
         )}
         <PluginFooter>
+          <Accordion expandMode="multi">
+            <AccordionSection id="search-history" title="Recent Searches">
+              <ul>
+                {searchHistory.map((term, index) => (
+                  <li key={index}>{term}</li>
+                ))}
+              </ul>
+            </AccordionSection>
+          </Accordion>
           {latestMessageId && (
             <Button type="primary" onClick={onCreateDraftClick}>
               Reply
