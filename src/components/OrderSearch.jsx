@@ -155,15 +155,17 @@ function OrderSearch() {
 
   function extractDriveLinks(content) {
     const driveLinkRegex =
-      /(?:^|\s)(https:\/\/drive\.google\.com\/drive\/[a-zA-Z0-9?=_&/-]+)/g;
+      /(\S+)?\s*(https:\/\/drive\.google\.com\/drive\/[a-zA-Z0-9?=_&/-]+)/g;
     let match;
     const links = [];
+
     while ((match = driveLinkRegex.exec(content)) !== null) {
       links.push({
-        descriptor: "Drive Link", // Default descriptor
-        url: match[1],
+        descriptor: match[1] || "Drive Link",
+        url: match[2],
       });
     }
+
     return links;
   }
 
