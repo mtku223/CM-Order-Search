@@ -102,7 +102,7 @@ function OrderSearch() {
 
   const handleReselectSearchTerm = (term) => {
     setSearchTerm(term);
-    handleSearch(term); // Directly call handleSearch with the term
+    handleSearch(null, term); // Pass null for the event and term as searchString
   };
 
   const onCreateDraftClick = () => {
@@ -145,6 +145,13 @@ function OrderSearch() {
 
   const [selectedTab, setSelectedTab] = useState("Order Information");
   const tabs = ["Order Info", "Line Items", "Billing & Shipping"];
+  // CSS for clickable terms
+  const clickableStyle = {
+    color: "blue",
+    textDecoration: "underline",
+    cursor: "pointer",
+    marginRight: "5px",
+  };
 
   function extractDriveLinks(content) {
     const driveLinkRegex =
@@ -459,9 +466,10 @@ function OrderSearch() {
                   <span
                     key={index}
                     onClick={() => handleReselectSearchTerm(term)}
-                    style={{ cursor: "pointer", marginRight: "10px" }}
+                    style={clickableStyle}
                   >
                     {term}
+                    {index < searchHistory.length - 1 ? ", " : ""}
                   </span>
                 ))}
               </div>
