@@ -134,13 +134,13 @@ function OrderSearch() {
 
   function extractDriveLinks(content) {
     const driveLinkRegex =
-      /(\w+)\s+(https:\/\/drive\.google\.com\/drive\/[a-zA-Z0-9?=_&/-]+)/g;
+      /(?:^|\s)(https:\/\/drive\.google\.com\/drive\/[a-zA-Z0-9?=_&/-]+)/g;
     let match;
     const links = [];
     while ((match = driveLinkRegex.exec(content)) !== null) {
       links.push({
-        descriptor: match[1],
-        url: match[2],
+        descriptor: "Drive Link", // Default descriptor
+        url: match[1],
       });
     }
     return links;
