@@ -12,7 +12,6 @@ import {
 } from "@frontapp/ui-kit";
 import ReactGA from "react-ga4";
 import OrderStatusBubble from "./OrderStatus";
-import ReactGA from "react-ga4";
 
 ReactGA.initialize("G-9FCBZSPY3M");
 
