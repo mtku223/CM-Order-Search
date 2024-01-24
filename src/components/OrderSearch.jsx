@@ -20,7 +20,10 @@ function OrderSearch() {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderData, setOrderData] = useState(null);
   const [latestMessageId, setLatestMessageId] = useState(undefined);
-  const [searchHistory, setSearchHistory] = useState([]);
+  const [searchHistory, setSearchHistory] = useState(() => {
+    const savedHistory = localStorage.getItem("searchHistory");
+    return savedHistory ? JSON.parse(savedHistory) : [];
+  });
 
   useEffect(() => {
     context.listMessages().then((response) => {
@@ -50,10 +53,11 @@ function OrderSearch() {
       modifiedSearchTerm
     )}`;
 
-    setSearchHistory((prevHistory) => [
-      modifiedSearchTerm,
-      ...prevHistory.slice(0, 6),
-    ]);
+    setSearchHistory((prevHistory) => {
+      const updatedHistory = [modifiedSearchTerm, ...prevHistory.slice(0, 6)];
+      localStorage.setItem("searchHistory", JSON.stringify(updatedHistory));
+      return updatedHistory;
+    });
 
     if (window.gtag) {
       window.gtag("event", "search", {
@@ -433,20 +437,16 @@ function OrderSearch() {
           </>
         )}
         <PluginFooter>
-          <Accordion expandMode="multi">
-            <AccordionSection id="search-history" title="Recent Searches">
-              <ul>
-                {searchHistory.map((term, index) => (
-                  <li key={index}>{term}</li>
-                ))}
-              </ul>
-            </AccordionSection>
-          </Accordion>
           {latestMessageId && (
             <Button type="primary" onClick={onCreateDraftClick}>
               Reply
             </Button>
           )}
+          <Accordion expandMode="multi">
+            <AccordionSection id="search-history" title="Recent Searches">
+              <div>{searchHistory.join(", ")}</div>
+            </AccordionSection>
+          </Accordion>
         </PluginFooter>
       </div>
     </PluginLayout>
