@@ -154,16 +154,19 @@ function OrderSearch() {
   };
 
   function extractDriveLinks(content) {
-    const driveLinkRegex =
-      /(\S+)?\s*(https:\/\/drive\.google\.com\/drive\/[a-zA-Z0-9?=_&/-]+)/g;
-    let match;
+    const segments = content.split(/\s+/);
     const links = [];
 
-    while ((match = driveLinkRegex.exec(content)) !== null) {
-      links.push({
-        descriptor: match[1] || "Drive Link",
-        url: match[2],
-      });
+    for (let i = 0; i < segments.length; i++) {
+      if (
+        segments[i].startsWith("https://drive.google.com/drive/") ||
+        segments[i].startsWith("https://docs.google.com/")
+      ) {
+        // Assume the preceding word is the descriptor, if it exists
+        const descriptor =
+          i > 0 ? segments[i - 1].replace(":", "") : "Drive Link";
+        links.push({ descriptor, url: segments[i] });
+      }
     }
 
     return links;
