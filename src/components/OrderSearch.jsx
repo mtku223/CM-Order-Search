@@ -10,10 +10,7 @@ import {
   Accordion,
   AccordionSection,
 } from "@frontapp/ui-kit";
-import ReactGA from "react-ga4";
 import OrderStatusBubble from "./OrderStatus";
-
-ReactGA.initialize("G-9FCBZSPY3M");
 
 function OrderSearch() {
   const context = useFrontContext();
@@ -36,10 +33,6 @@ function OrderSearch() {
     });
   }, [context]);
 
-  useEffect(() => {
-    ReactGA.send({ hitType: "pageview", page: window.location.pathname });
-  }, []);
-
   const handleSearch = async (e, searchString) => {
     if (e) e.preventDefault(); // Prevent the default form submit action
 
@@ -51,9 +44,11 @@ function OrderSearch() {
       modifiedSearchTerm = "Order-" + searchTerm;
     }
 
+    const username = context.teammate ? context.teammate.name : "anonymous";
+
     const serverUrl = `/.netlify/functions/search?searchTerm=${encodeURIComponent(
       modifiedSearchTerm
-    )}`;
+    )}&username=${encodeURIComponent(username)}`;
 
     setSearchHistory((prevHistory) => {
       const newHistory = [
@@ -63,15 +58,6 @@ function OrderSearch() {
       localStorage.setItem("searchHistory", JSON.stringify(newHistory));
       return newHistory;
     });
-
-    if (window.gtag) {
-      window.gtag("event", "search", {
-        event_category: "Plugin Interactions",
-        event_label: "Search Performed",
-        search_term: modifiedSearchTerm,
-        value: 1, // If there's a quantifiable value associated with the event
-      });
-    }
 
     try {
       const response = await fetch(serverUrl);
