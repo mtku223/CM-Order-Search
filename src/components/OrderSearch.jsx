@@ -97,7 +97,7 @@ function OrderSearch() {
     const messageBody = `
         Hey Team,
     
-        We are sending this project over.
+        We are sending this project over Test update.
     
         Order number: ${orderData.order_id}
         Ship by date: ${orderData.date_due}
