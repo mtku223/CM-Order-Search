@@ -1,5 +1,6 @@
 import { useFrontContext } from "../providers/frontContext";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import Front from "@frontapp/plugin-sdk";
 import {
   PluginFooter,
   Button,
@@ -16,22 +17,10 @@ function OrderSearch() {
   const context = useFrontContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [orderData, setOrderData] = useState(null);
-  const [latestMessageId, setLatestMessageId] = useState(undefined);
   const [searchHistory, setSearchHistory] = useState(() => {
     const savedHistory = localStorage.getItem("searchHistory");
     return savedHistory ? JSON.parse(savedHistory) : [];
   });
-
-  useEffect(() => {
-    context.listMessages().then((response) => {
-      if (response.results.length > 0) {
-        const latestMessageIndex = response.results.length - 1;
-        setLatestMessageId(response.results[latestMessageIndex].id);
-      } else {
-        setLatestMessageId(undefined);
-      }
-    });
-  }, [context]);
 
   const handleSearch = async (e, searchString) => {
     if (e) e.preventDefault(); // Prevent the default form submit action
@@ -205,6 +194,12 @@ function OrderSearch() {
         emailContent += `Description: ${line.product_description}\n`;
       }
 
+      // Add attachment information
+      if (line.attachment_urls && line.attachment_urls.length > 0) {
+        emailContent += `Attachments: ${line.attachment_urls.length} product image(s) available\n`;
+        emailContent += `Note: Please download and attach product images using the plugin\n`;
+      }
+
       // PMS Colors
       const pmsColor = vendorOrderData.pmsColors[line.id] || "";
       if (pmsColor) {
@@ -244,28 +239,78 @@ function OrderSearch() {
   };
 
   const onCreateVendorOrderDraft = () => {
-    if (!latestMessageId || !orderData?.orders?.[0]) return;
+    if (!orderData?.orders?.[0]) return;
 
     const emailBody = generateVendorOrderEmail(orderData.orders[0]);
 
-    if (typeof context.conversation.draftId !== "undefined") {
-      context.updateDraft(context.conversation.draftId, {
-        updateMode: "insert",
-        content: {
-          body: emailBody,
-          type: "text",
-        },
-      });
-    } else {
-      context.createDraft({
-        content: {
-          body: emailBody,
-          type: "text",
-        },
-        replyOptions: {
-          type: "replyAll",
-          originalMessageId: latestMessageId,
-        },
+    // Create a new email instead of replying to the current conversation
+    context.createDraft({
+      content: {
+        body: emailBody,
+        type: "text",
+      },
+      // Removed replyOptions to create a new email instead of reply
+    });
+  };
+
+  // Search functions
+  const searchDistributorCentral = (productName) => {
+    const searchQuery = encodeURIComponent(productName);
+    const url = `https://www.distributorcentral.com/product/search.cfm?query=${searchQuery}`;
+
+    try {
+      if (window.Front && Front.openUrlInTab) {
+        Front.openUrlInTab(url);
+      } else {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+    } catch (error) {
+      console.error("Error opening DistributorCentral search:", error);
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  const searchGoogle = (productName) => {
+    const searchQuery = encodeURIComponent(productName);
+    const url = `https://www.google.com/search?q=${searchQuery}`;
+
+    try {
+      if (window.Front && Front.openUrlInTab) {
+        Front.openUrlInTab(url);
+      } else {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+    } catch (error) {
+      console.error("Error opening Google search:", error);
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  // Function to download and attach images
+  const downloadAttachment = async (attachmentUrl) => {
+    try {
+      // Open the image URL in a new tab for manual download/viewing
+      // Front Plugin SDK provides Front.openUrlInTab for external URLs
+      if (window.Front && Front.openUrlInTab) {
+        Front.openUrlInTab(attachmentUrl);
+      } else {
+        // Fallback: use standard window.open
+        window.open(attachmentUrl, "_blank", "noopener,noreferrer");
+      }
+    } catch (error) {
+      console.error("Error opening attachment:", error);
+      // Final fallback: use standard window.open
+      window.open(attachmentUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  const handleAttachments = (lineItem) => {
+    if (lineItem.attachment_urls && lineItem.attachment_urls.length > 0) {
+      lineItem.attachment_urls.forEach((attachment, index) => {
+        // Add a small delay between opening multiple popups to avoid popup blockers
+        setTimeout(() => {
+          downloadAttachment(attachment.image_url);
+        }, index * 500);
       });
     }
   };
@@ -745,6 +790,66 @@ function OrderSearch() {
                                   </span>
                                 </div>
 
+                                {/* Search buttons */}
+                                <div style={{ marginBottom: "10px" }}>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      searchDistributorCentral(
+                                        lineItem.product_name
+                                      )
+                                    }
+                                    style={{
+                                      marginRight: "10px",
+                                      padding: "4px 8px",
+                                      fontSize: "12px",
+                                      backgroundColor: "#e3f2fd",
+                                      border: "1px solid #90caf9",
+                                      borderRadius: "4px",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    🔍 Search DistributorCentral
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      searchGoogle(lineItem.product_name)
+                                    }
+                                    style={{
+                                      marginRight: "10px",
+                                      padding: "4px 8px",
+                                      fontSize: "12px",
+                                      backgroundColor: "#f3e5f5",
+                                      border: "1px solid #ce93d8",
+                                      borderRadius: "4px",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    🔍 Search Google
+                                  </button>
+                                  {lineItem.attachment_urls &&
+                                    lineItem.attachment_urls.length > 0 && (
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          handleAttachments(lineItem)
+                                        }
+                                        style={{
+                                          padding: "4px 8px",
+                                          fontSize: "12px",
+                                          backgroundColor: "#e8f5e8",
+                                          border: "1px solid #81c784",
+                                          borderRadius: "4px",
+                                          cursor: "pointer",
+                                        }}
+                                      >
+                                        📎 Download Images (
+                                        {lineItem.attachment_urls.length})
+                                      </button>
+                                    )}
+                                </div>
+
                                 {/* Size breakdown - only for items with fields */}
                                 {lineItem.fields &&
                                   lineItem.fields.length > 0 &&
@@ -866,7 +971,7 @@ function OrderSearch() {
           </>
         )}
         <PluginFooter>
-          {latestMessageId && selectedTab === "Vendor Order" && (
+          {selectedTab === "Vendor Order" && (
             <Button type="secondary" onClick={onCreateVendorOrderDraft}>
               Create Vendor Order
             </Button>
