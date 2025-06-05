@@ -130,7 +130,25 @@ function OrderSearch() {
   };
 
   const [selectedTab, setSelectedTab] = useState("Order Information");
-  const tabs = ["Order Info", "Line Items", "Billing & Shipping"];
+  const tabs = [
+    "Order Info",
+    "Line Items",
+    "Billing & Shipping",
+    "Vendor Order",
+  ];
+
+  // Vendor Order state
+  const [selectedProducts, setSelectedProducts] = useState({});
+  const [vendorOrderData, setVendorOrderData] = useState({
+    pmsColors: {},
+    inHandDate: "",
+    coBrandedLabel: {},
+    preProductionSample: {},
+    artworkLinks: "",
+    shippingNotes:
+      "Ship to: *China order AIR Shipping (Let us know if Express is needed to meet in the date)\n*If this is being shipped from Abroad to the USA make sure the vendor add our Tax ID/EIN # (20-3592623).",
+  });
+
   // CSS for clickable terms
   const clickableStyle = {
     color: "blue",
@@ -157,6 +175,126 @@ function OrderSearch() {
 
     return links;
   }
+
+  // Vendor Order helper functions
+  const handleProductSelection = (productId, isSelected) => {
+    setSelectedProducts((prev) => ({
+      ...prev,
+      [productId]: isSelected,
+    }));
+  };
+
+  const handleVendorOrderDataChange = (field, productId, value) => {
+    setVendorOrderData((prev) => ({
+      ...prev,
+      [field]: productId
+        ? {
+            ...prev[field],
+            [productId]: value,
+          }
+        : value,
+    }));
+  };
+
+  const generateVendorOrderEmail = (order) => {
+    const selectedProductIds = Object.keys(selectedProducts).filter(
+      (id) => selectedProducts[id]
+    );
+    const selectedOrderLines = order.order_lines.filter(
+      (line) => selectedProductIds.includes(line.id) && line.fields.length > 0
+    );
+
+    if (selectedOrderLines.length === 0) {
+      return "No products selected for vendor order.";
+    }
+
+    let emailContent = `We are placing an order. Details below:\n\n`;
+    emailContent += `Customer #: ${order.customer_id}\n`;
+    emailContent += `PO #: ${order.customer_po_number || "N/A"}\n\n`;
+
+    selectedOrderLines.forEach((line, index) => {
+      emailContent += `--- Item ${index + 1} ---\n`;
+      emailContent += `Item: ${line.product_name}\n`;
+      if (line.product_code)
+        emailContent += `Product Code: ${line.product_code}\n`;
+
+      const colorName =
+        line.product_color?.name || line.product_freeform_color || "N/A";
+      emailContent += `Color: ${colorName}\n`;
+      emailContent += `Quantity: ${line.qty} (Ship Exact)\n`;
+
+      // Size breakdown
+      if (line.fields.length > 0 && line.fields[0].options.length > 0) {
+        emailContent += `Size Breakdown:\n`;
+        line.fields[0].options.forEach((option) => {
+          emailContent += `  - ${option.name}: ${option.qty}\n`;
+        });
+      }
+
+      // PMS Colors
+      const pmsColor = vendorOrderData.pmsColors[line.id] || "";
+      if (pmsColor) {
+        emailContent += `Imprint PMS Colors: ${pmsColor}\n`;
+      }
+
+      // Co-branded label
+      const coBranded = vendorOrderData.coBrandedLabel[line.id];
+      emailContent += `Co-Branded CM Label: ${
+        coBranded === true ? "Yes" : coBranded === false ? "No" : "N/A"
+      }\n`;
+
+      emailContent += `Pricing per unit Net: $${line.unit_price}\n`;
+
+      // Pre-production sample
+      const preProduction = vendorOrderData.preProductionSample[line.id];
+      emailContent += `Pre-production sample/Photo: ${
+        preProduction === true ? "Yes" : preProduction === false ? "No" : "N/A"
+      }\n\n`;
+    });
+
+    // Artwork links
+    if (vendorOrderData.artworkLinks) {
+      emailContent += `Artwork and Mocks: ${vendorOrderData.artworkLinks}\n\n`;
+    }
+
+    // In-hand date
+    if (vendorOrderData.inHandDate) {
+      emailContent += `In-hand date: ${vendorOrderData.inHandDate}\n\n`;
+    }
+
+    emailContent += `Please use our UPS Account for shipping:\nX4R511 / Zip: 20817\n\n`;
+    emailContent += vendorOrderData.shippingNotes;
+    emailContent += `\n\nPlease, let me know if you have any questions.\n\nRegards.`;
+
+    return emailContent;
+  };
+
+  const onCreateVendorOrderDraft = () => {
+    if (!latestMessageId || !orderData?.orders?.[0]) return;
+
+    const emailBody = generateVendorOrderEmail(orderData.orders[0]);
+
+    if (typeof context.conversation.draftId !== "undefined") {
+      context.updateDraft(context.conversation.draftId, {
+        updateMode: "insert",
+        content: {
+          body: emailBody,
+          type: "text",
+        },
+      });
+    } else {
+      context.createDraft({
+        content: {
+          body: emailBody,
+          type: "text",
+        },
+        replyOptions: {
+          type: "replyAll",
+          originalMessageId: latestMessageId,
+        },
+      });
+    }
+  };
 
   return (
     <PluginLayout>
@@ -443,6 +581,247 @@ function OrderSearch() {
                     )}
                   </div>
                 )}
+                {selectedTab === "Vendor Order" && (
+                  <div className="vendor-order">
+                    <div style={{ marginBottom: "20px" }}>
+                      <h3>Select Products for Vendor Order</h3>
+
+                      {/* Global settings */}
+                      <div
+                        style={{
+                          marginBottom: "15px",
+                          padding: "10px",
+                          border: "1px solid #ddd",
+                          borderRadius: "4px",
+                        }}
+                      >
+                        <h4>Order Details</h4>
+                        <div style={{ marginBottom: "10px" }}>
+                          <label>In-hand Date:</label>
+                          <input
+                            type="date"
+                            value={vendorOrderData.inHandDate}
+                            onChange={(e) =>
+                              handleVendorOrderDataChange(
+                                "inHandDate",
+                                null,
+                                e.target.value
+                              )
+                            }
+                            style={{ marginLeft: "10px", padding: "4px" }}
+                          />
+                        </div>
+                        <div style={{ marginBottom: "10px" }}>
+                          <label>Artwork Links:</label>
+                          <input
+                            type="text"
+                            value={vendorOrderData.artworkLinks}
+                            onChange={(e) =>
+                              handleVendorOrderDataChange(
+                                "artworkLinks",
+                                null,
+                                e.target.value
+                              )
+                            }
+                            placeholder="https://drive.google.com/..."
+                            style={{
+                              marginLeft: "10px",
+                              padding: "4px",
+                              width: "300px",
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <label>Shipping Notes:</label>
+                          <textarea
+                            value={vendorOrderData.shippingNotes}
+                            onChange={(e) =>
+                              handleVendorOrderDataChange(
+                                "shippingNotes",
+                                null,
+                                e.target.value
+                              )
+                            }
+                            style={{
+                              marginLeft: "10px",
+                              padding: "4px",
+                              width: "400px",
+                              height: "60px",
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Product list */}
+                      {order.order_lines
+                        .filter((lineItem) => lineItem.fields.length > 0)
+                        .map((lineItem) => (
+                          <div
+                            key={lineItem.id}
+                            style={{
+                              marginBottom: "15px",
+                              padding: "10px",
+                              border: "1px solid #ddd",
+                              borderRadius: "4px",
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginBottom: "10px",
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedProducts[lineItem.id] || false}
+                                onChange={(e) =>
+                                  handleProductSelection(
+                                    lineItem.id,
+                                    e.target.checked
+                                  )
+                                }
+                                style={{ marginRight: "10px" }}
+                              />
+                              <strong>{lineItem.product_name}</strong>
+                              {lineItem.product_code && (
+                                <span
+                                  style={{ marginLeft: "10px", color: "#666" }}
+                                >
+                                  ({lineItem.product_code})
+                                </span>
+                              )}
+                            </div>
+
+                            {selectedProducts[lineItem.id] && (
+                              <div style={{ marginLeft: "20px" }}>
+                                <div style={{ marginBottom: "8px" }}>
+                                  <span>Quantity: {lineItem.qty}</span>
+                                  <span style={{ marginLeft: "20px" }}>
+                                    Color:{" "}
+                                    {lineItem.product_color?.name ||
+                                      lineItem.product_freeform_color ||
+                                      "N/A"}
+                                  </span>
+                                  <span style={{ marginLeft: "20px" }}>
+                                    Price: ${lineItem.unit_price}
+                                  </span>
+                                </div>
+
+                                {/* Size breakdown */}
+                                {lineItem.fields.length > 0 &&
+                                  lineItem.fields[0].options.length > 0 && (
+                                    <div style={{ marginBottom: "8px" }}>
+                                      <strong>Sizes: </strong>
+                                      {lineItem.fields[0].options
+                                        .map(
+                                          (option) =>
+                                            `${option.name}: ${option.qty}`
+                                        )
+                                        .join(", ")}
+                                    </div>
+                                  )}
+
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    gap: "15px",
+                                    flexWrap: "wrap",
+                                    marginTop: "10px",
+                                  }}
+                                >
+                                  <div>
+                                    <label>PMS Colors:</label>
+                                    <input
+                                      type="text"
+                                      value={
+                                        vendorOrderData.pmsColors[
+                                          lineItem.id
+                                        ] || ""
+                                      }
+                                      onChange={(e) =>
+                                        handleVendorOrderDataChange(
+                                          "pmsColors",
+                                          lineItem.id,
+                                          e.target.value
+                                        )
+                                      }
+                                      placeholder="e.g., 345, 186C"
+                                      style={{
+                                        marginLeft: "5px",
+                                        padding: "4px",
+                                        width: "120px",
+                                      }}
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <label>Co-Branded CM Label:</label>
+                                    <select
+                                      value={
+                                        vendorOrderData.coBrandedLabel[
+                                          lineItem.id
+                                        ] ?? ""
+                                      }
+                                      onChange={(e) =>
+                                        handleVendorOrderDataChange(
+                                          "coBrandedLabel",
+                                          lineItem.id,
+                                          e.target.value === "true"
+                                            ? true
+                                            : e.target.value === "false"
+                                            ? false
+                                            : ""
+                                        )
+                                      }
+                                      style={{
+                                        marginLeft: "5px",
+                                        padding: "4px",
+                                      }}
+                                    >
+                                      <option value="">Select...</option>
+                                      <option value="true">Yes</option>
+                                      <option value="false">No</option>
+                                    </select>
+                                  </div>
+
+                                  <div>
+                                    <label>Pre-production Sample:</label>
+                                    <select
+                                      value={
+                                        vendorOrderData.preProductionSample[
+                                          lineItem.id
+                                        ] ?? ""
+                                      }
+                                      onChange={(e) =>
+                                        handleVendorOrderDataChange(
+                                          "preProductionSample",
+                                          lineItem.id,
+                                          e.target.value === "true"
+                                            ? true
+                                            : e.target.value === "false"
+                                            ? false
+                                            : ""
+                                        )
+                                      }
+                                      style={{
+                                        marginLeft: "5px",
+                                        padding: "4px",
+                                      }}
+                                    >
+                                      <option value="">Select...</option>
+                                      <option value="true">Yes</option>
+                                      <option value="false">No</option>
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </>
@@ -451,6 +830,11 @@ function OrderSearch() {
           {latestMessageId && (
             <Button type="primary" onClick={onCreateDraftClick}>
               Reply
+            </Button>
+          )}
+          {latestMessageId && selectedTab === "Vendor Order" && (
+            <Button type="secondary" onClick={onCreateVendorOrderDraft}>
+              Create Vendor Order
             </Button>
           )}
           <Accordion expandMode="multi">

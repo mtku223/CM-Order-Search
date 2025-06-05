@@ -1,0 +1,812 @@
+{
+  "total": 1,
+  "orders": [
+    {
+      "order_id": "Order-27524",
+      "item_amount": 12150.5,
+      "shipping_amount": 617.23,
+      "tax_amount_before_discounts": 0,
+      "tax_amount": 0,
+      "tax_names": "",
+      "discount_amount": 0,
+      "gift_certificate_amount": 0,
+      "coupon_discount_amount": 0,
+      "credit_used": 0,
+      "billable_amount": 12767.73,
+      "total_weight": 262.019398387,
+      "source_type": 3,
+      "order_status": 1,
+      "job_name": "NEW CUSTOMER KIT -  RJ1",
+      "customer_id": 67392626,
+      "customer_po_number": "",
+      "date_started": "2024-12-11T22:26:04.000+00:00",
+      "date_ordered": "2025-03-26T14:35:00.000+00:00",
+      "date_production_files_ready": "2025-06-03T12:41:14.000+00:00",
+      "date_produced": null,
+      "date_shipped": null,
+      "date_invoiced": null,
+      "date_modified": "2025-06-04T12:12:11.000+00:00",
+      "date_due": "2025-06-17T21:00:00.000+00:00",
+      "date_scheduled": "2025-06-17T04:00:00.000+00:00",
+      "shipping_method": null,
+      "store": {
+        "id": 12012147,
+        "name": "Crooked Monkey",
+        "domain": "www.crookedmonkey.com",
+        "owner": {
+          "user_id": 28200107,
+          "email": "micha@crookedmonkey.com",
+          "firstname": "Micha",
+          "lastname": "Weinblatt",
+          "country_code": "US",
+          "state": "District of Columbia",
+          "city": "Washington",
+          "street": "1100 15th Street NW 4th Floor",
+          "postcode": "20005",
+          "company": "Shirts without Buttons, DBA: Crooked Monkey",
+          "company_id": null,
+          "salutation": null,
+          "ph_number": "+1 202-540-0818"
+        }
+      },
+      "assigned_to": {
+        "id": 34703133,
+        "login": "pillarnunes1",
+        "firstname": "Pillar",
+        "lastname": "Nunes"
+      },
+      "created_by": {
+        "id": 39035348,
+        "login": "Jesussalas",
+        "firstname": "Jesus",
+        "lastname": "Salas"
+      },
+      "rush_order_fee": "",
+      "rush_order_fee_amount": 0,
+      "account_terms": "Net 15",
+      "outstanding_balance": 12767.73,
+      "is_priority": false,
+      "billing_details": {
+        "user_id": 67392626,
+        "company_id": 666046,
+        "email": "hilaire@tidalcyber.com",
+        "firstname": "Hilaire",
+        "lastname": "Ashworth Benson",
+        "country_code": "US",
+        "state": "Virginia",
+        "city": "Clifton",
+        "street": "7606 Partridge Berry Ln",
+        "postcode": "20124",
+        "company": "Tidal Cyber Inc.",
+        "salutation": null,
+        "ph_number": "(804) 855-9827",
+        "custom_fields": [
+          {
+            "caption": "In Hand Date",
+            "value": ""
+          },
+          {
+            "caption": "Event Date",
+            "value": ""
+          }
+        ]
+      },
+      "quote_pdf_url": "https://www.crookedmonkey.com/bh/orders/download_quote/4325889841?user[id]=28203012&key=3689f81997af0f0646ab48d544baba55ec614bcf",
+      "production_pdf_url": "https://www.crookedmonkey.com/bh/orders/download_worksheet/4325889841?user[id]=28203012&key=3689f81997af0f0646ab48d544baba55ec614bcf",
+      "order_proof_pdf_url": "https://www.crookedmonkey.com/bh/orders/download_order_proof/4325889841?user[id]=28203012&key=3689f81997af0f0646ab48d544baba55ec614bcf",
+      "store_group": {
+        "id": 7367,
+        "name": "Crooked Monkey Store"
+      },
+      "shipping_details": {
+        "email": "hilaire@tidalcyber.com",
+        "firstname": "Mike",
+        "lastname": "Bower",
+        "country_code": "US",
+        "state": "Ohio",
+        "city": "Willard",
+        "street": "Re: Tidal Cyber PO #27524\n5875 US Highway 224 W",
+        "postcode": "44890",
+        "company": "Crooked Monkey Warehouse",
+        "salutation": null,
+        "ph_number": "(567) 224-0576",
+        "custom_fields": [
+          {
+            "caption": "In Hand Date",
+            "value": "-"
+          },
+          {
+            "caption": "Event Date",
+            "value": "-"
+          }
+        ]
+      },
+      "payments": [],
+      "payment_details": {
+        "payment_type_id": -4,
+        "payment_type_name": "Not chosen yet"
+      },
+      "refunds": [],
+      "order_lines": [
+        {
+          "id": "3243137811",
+          "item_type": 0,
+          "qty": 200,
+          "total_price": 3000,
+          "unit_price": 15,
+          "discount": 0,
+          "tax": 0,
+          "tax_names": "",
+          "store_commission": 0,
+          "parent_store_commission": 0,
+          "commission_transaction_fee": 0,
+          "production_status": 1,
+          "processed_date": null,
+          "processed_by": null,
+          "shipped_date": null,
+          "shipped_by": null,
+          "production_assigned_to": {
+            "id": 48246861,
+            "login": "Rdiaz1",
+            "firstname": "Rodrigo",
+            "lastname": "Juarez"
+          },
+          "fc_production_status": "",
+          "product_id": 232781231,
+          "product_code": "Custom Hat",
+          "product_name": "Custom Hat",
+          "length": 4.6999906,
+          "width": 4.6999906,
+          "height": 3.499993,
+          "unit_weight": 0.27006627095,
+          "product_supplier_name": "N/A",
+          "product_color": {
+            "name": "Custom",
+            "id": 175253181
+          },
+          "attachment_urls": [
+            {
+              "id": "4737491",
+              "image_url": "https://www.crookedmonkey.com/configured_product_attachment/s/image/4/737/491/CustomHat_03_Mockup_Tidal.jpg?0",
+              "name": "CustomHat_03_Mockup_Tidal.jpg",
+              "description": ""
+            }
+          ],
+          "fields": [
+            {
+              "field_id": 2,
+              "field_name": "Size",
+              "field_type": 0,
+              "string_value": null,
+              "date_value": null,
+              "file_value_url": null,
+              "options": [
+                {
+                  "option_id": 5178,
+                  "qty": 200,
+                  "code": "ONE SIZE",
+                  "name": "ONE SIZE",
+                  "sub_options": [],
+                  "price": 15,
+                  "sku": null,
+                  "vendor_sku": null,
+                  "cost": 0,
+                  "dn_sku_id": "232781231_355839866"
+                }
+              ]
+            }
+          ],
+          "views": [],
+          "decoration_unit_price": 0,
+          "teamnames": []
+        },
+        {
+          "id": "3243137856",
+          "item_type": 13,
+          "qty": 3,
+          "total_price": 60,
+          "unit_price": 20,
+          "discount": 0,
+          "tax": 0,
+          "tax_names": "",
+          "store_commission": 0,
+          "parent_store_commission": 0,
+          "commission_transaction_fee": 0,
+          "production_status": 3,
+          "processed_date": "2025-03-26T14:35:25.000+00:00",
+          "processed_by": null,
+          "shipped_date": "2025-03-26T14:35:25.000+00:00",
+          "shipped_by": null,
+          "production_assigned_to": null,
+          "fc_production_status": "",
+          "product_name": "Screen Setup Fee (Design 1)"
+        },
+        {
+          "id": "3243119516",
+          "item_type": 12,
+          "qty": 1,
+          "total_price": 95,
+          "unit_price": 95,
+          "discount": 0,
+          "tax": 0,
+          "tax_names": "",
+          "store_commission": 0,
+          "parent_store_commission": 0,
+          "commission_transaction_fee": 0,
+          "production_status": 3,
+          "processed_date": "2025-03-26T14:35:24.000+00:00",
+          "processed_by": null,
+          "shipped_date": "2025-03-26T14:35:24.000+00:00",
+          "shipped_by": null,
+          "production_assigned_to": null,
+          "fc_production_status": "",
+          "product_name": "Setup Costs"
+        },
+        {
+          "id": "3243137816",
+          "item_type": 0,
+          "qty": 200,
+          "total_price": 1400,
+          "unit_price": 7,
+          "discount": 0,
+          "tax": 0,
+          "tax_names": "",
+          "store_commission": 0,
+          "parent_store_commission": 0,
+          "commission_transaction_fee": 0,
+          "production_status": 3,
+          "processed_date": "2025-06-03T12:00:47.000+00:00",
+          "processed_by": {
+            "id": 41984318,
+            "login": "Kserrano",
+            "firstname": "Katherine",
+            "lastname": "Serrano"
+          },
+          "shipped_date": "2025-06-03T12:00:00.000+00:00",
+          "shipped_by": {
+            "id": 41984318,
+            "login": "Kserrano",
+            "firstname": "Katherine",
+            "lastname": "Serrano"
+          },
+          "production_assigned_to": {
+            "id": 48246861,
+            "login": "Rdiaz1",
+            "firstname": "Rodrigo",
+            "lastname": "Juarez"
+          },
+          "fc_production_status": "",
+          "product_id": 232781246,
+          "product_code": "Custom Socks",
+          "product_name": "Custom Athletic socks",
+          "length": 2.999994,
+          "width": 1.999996,
+          "height": 0.3999992,
+          "unit_weight": 1.000016820432,
+          "product_supplier_name": "N/A",
+          "product_color": {
+            "name": "Custom",
+            "id": 175253306
+          },
+          "attachment_urls": [
+            {
+              "id": "4736941",
+              "image_url": "https://www.crookedmonkey.com/configured_product_attachment/s/image/4/736/941/CustomSocks_04_Mockup_Tidal.jpg?0",
+              "name": "CustomSocks_04_Mockup_Tidal.jpg",
+              "description": ""
+            }
+          ],
+          "fields": [
+            {
+              "field_id": 2,
+              "field_name": "Size",
+              "field_type": 0,
+              "string_value": null,
+              "date_value": null,
+              "file_value_url": null,
+              "options": [
+                {
+                  "option_id": 5178,
+                  "qty": 200,
+                  "code": "ONE SIZE",
+                  "name": "ONE SIZE",
+                  "sub_options": [],
+                  "price": 7,
+                  "sku": null,
+                  "vendor_sku": null,
+                  "cost": 0,
+                  "dn_sku_id": "232781246_355840201"
+                }
+              ]
+            }
+          ],
+          "views": [],
+          "decoration_unit_price": 0,
+          "teamnames": []
+        },
+        {
+          "id": "3243116446",
+          "item_type": 0,
+          "qty": 50,
+          "total_price": 292,
+          "unit_price": 5.84,
+          "discount": 0,
+          "tax": 0,
+          "tax_names": "",
+          "store_commission": 0,
+          "parent_store_commission": 0,
+          "commission_transaction_fee": 0,
+          "production_status": 3,
+          "processed_date": "2025-05-28T20:53:40.000+00:00",
+          "processed_by": {
+            "id": 41984318,
+            "login": "Kserrano",
+            "firstname": "Katherine",
+            "lastname": "Serrano"
+          },
+          "shipped_date": "2025-05-29T20:53:00.000+00:00",
+          "shipped_by": {
+            "id": 41984318,
+            "login": "Kserrano",
+            "firstname": "Katherine",
+            "lastname": "Serrano"
+          },
+          "production_assigned_to": {
+            "id": 48246861,
+            "login": "Rdiaz1",
+            "firstname": "Rodrigo",
+            "lastname": "Juarez"
+          },
+          "fc_production_status": "",
+          "product_id": 226332193,
+          "product_code": "BE007",
+          "product_name": "6 oz. Canvas Promo Tote",
+          "length": 7.999984,
+          "width": 7.2499855,
+          "height": 0.499999,
+          "unit_weight": 0.160055602212,
+          "product_supplier_name": "Alphabroder",
+          "product_color": {
+            "name": "Royal",
+            "id": 91547932
+          },
+          "attachment_urls": [
+            {
+              "id": "4736936",
+              "image_url": "https://www.crookedmonkey.com/configured_product_attachment/s/image/4/736/936/Totebag_02_Mockup_Tidal.jpg?0",
+              "name": "Totebag_02_Mockup_Tidal.jpg",
+              "description": ""
+            }
+          ],
+          "fields": [
+            {
+              "field_id": 2,
+              "field_name": "Size",
+              "field_type": 0,
+              "string_value": null,
+              "date_value": null,
+              "file_value_url": null,
+              "options": [
+                {
+                  "option_id": 3043207,
+                  "qty": 50,
+                  "code": "OS",
+                  "name": "OS",
+                  "sub_options": [],
+                  "price": 2.6,
+                  "sku": "B79415550",
+                  "vendor_sku": "B79415550",
+                  "cost": 1.68,
+                  "dn_sku_id": "226332193_66697257"
+                }
+              ]
+            }
+          ],
+          "views": [
+            {
+              "view_id": 3559103,
+              "view_name": null,
+              "production_files_ready": true,
+              "thumbnail": "/configured_product_view/e/image/a/1/302/460/651/large_thumb.png?1748955467",
+              "areas": [
+                {
+                  "area_id": 28548613,
+                  "area_name": "Bag Front",
+                  "proof_url": "https://www.crookedmonkey.com/bh/production/get_area_proof/1128386016?user[id]=28203012&key=3689f81997af0f0646ab48d544baba55ec614bcf",
+                  "processes": [
+                    {
+                      "process": "SCR",
+                      "number_of_colors": 2,
+                      "production_file_url": "https://www.crookedmonkey.com/bh/production/get_design/970783556?user[id]=28203012&key=3689f81997af0f0646ab48d544baba55ec614bcf",
+                      "edit_file_url": "https://www.crookedmonkey.com/bh/production/get_edit_file/970783556?user[id]=28203012&key=3689f81997af0f0646ab48d544baba55ec614bcf",
+                      "source_file_url": "https://www.crookedmonkey.com/bh/production/get_source_artwork/970783556?user[id]=28203012&key=3689f81997af0f0646ab48d544baba55ec614bcf"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "decoration_unit_price": 3.24,
+          "teamnames": []
+        },
+        {
+          "id": "3268944106",
+          "item_type": 12,
+          "qty": 2,
+          "total_price": 100,
+          "unit_price": 50,
+          "discount": 0,
+          "tax": 0,
+          "tax_names": "",
+          "store_commission": 0,
+          "parent_store_commission": 0,
+          "commission_transaction_fee": 0,
+          "production_status": 3,
+          "processed_date": "2025-05-23T23:23:40.000+00:00",
+          "processed_by": null,
+          "shipped_date": "2025-05-23T23:23:40.000+00:00",
+          "shipped_by": null,
+          "production_assigned_to": null,
+          "fc_production_status": "",
+          "product_name": "Sureship - PCNA"
+        },
+        {
+          "id": "3243137826",
+          "item_type": 25,
+          "qty": 50,
+          "total_price": 2268,
+          "unit_price": 45.36,
+          "discount": 0,
+          "tax": 0,
+          "tax_names": "",
+          "store_commission": 0,
+          "parent_store_commission": 0,
+          "commission_transaction_fee": 0,
+          "production_status": 3,
+          "processed_date": "2025-05-28T13:01:35.000+00:00",
+          "processed_by": {
+            "id": 41984318,
+            "login": "Kserrano",
+            "firstname": "Katherine",
+            "lastname": "Serrano"
+          },
+          "shipped_date": "2025-05-28T15:26:00.000+00:00",
+          "shipped_by": {
+            "id": 48246861,
+            "login": "Rdiaz1",
+            "firstname": "Rodrigo",
+            "lastname": "Juarez"
+          },
+          "production_assigned_to": {
+            "id": 48246861,
+            "login": "Rdiaz1",
+            "firstname": "Rodrigo",
+            "lastname": "Juarez"
+          },
+          "fc_production_status": "",
+          "product_name": "1601-95 Hydro Flask® All Around™ Tumbler 20oz",
+          "product_description": "Laser Engraving",
+          "product_freeform_color": "Indigo",
+          "attachment_urls": [
+            {
+              "id": "5003896",
+              "image_url": "https://www.crookedmonkey.com/configured_product_attachment/s/image/5/3/896/HydroFlask_Mockup1_TidalCyber.png?0",
+              "name": "HydroFlask_Mockup1_TidalCyber.png",
+              "description": ""
+            }
+          ],
+          "views": [],
+          "decoration_unit_price": 0,
+          "teamnames": []
+        },
+        {
+          "id": "3243141131",
+          "item_type": 12,
+          "qty": 1,
+          "total_price": 1000,
+          "unit_price": 1000,
+          "discount": 0,
+          "tax": 0,
+          "tax_names": "",
+          "store_commission": 0,
+          "parent_store_commission": 0,
+          "commission_transaction_fee": 0,
+          "production_status": 3,
+          "processed_date": "2025-03-26T14:35:25.000+00:00",
+          "processed_by": null,
+          "shipped_date": "2025-03-26T14:35:25.000+00:00",
+          "shipped_by": null,
+          "production_assigned_to": null,
+          "fc_production_status": "",
+          "product_name": "Swag Shop - Fully Branded (Shopify)\t"
+        },
+        {
+          "id": "3243137836",
+          "item_type": 25,
+          "qty": 150,
+          "total_price": 2478,
+          "unit_price": 16.52,
+          "discount": 0,
+          "tax": 0,
+          "tax_names": "",
+          "store_commission": 0,
+          "parent_store_commission": 0,
+          "commission_transaction_fee": 0,
+          "production_status": 3,
+          "processed_date": "2025-06-04T12:11:55.000+00:00",
+          "processed_by": {
+            "id": 41984318,
+            "login": "Kserrano",
+            "firstname": "Katherine",
+            "lastname": "Serrano"
+          },
+          "shipped_date": "2025-06-04T12:12:00.000+00:00",
+          "shipped_by": {
+            "id": 41984318,
+            "login": "Kserrano",
+            "firstname": "Katherine",
+            "lastname": "Serrano"
+          },
+          "production_assigned_to": {
+            "id": 48246861,
+            "login": "Rdiaz1",
+            "firstname": "Rodrigo",
+            "lastname": "Juarez"
+          },
+          "fc_production_status": "",
+          "product_name": "1625-76 Rover Copper Vacuum Insulated Camp Mug 14oz",
+          "product_description": "Color Print SilkScreen",
+          "product_freeform_color": "Navy (NY)",
+          "attachment_urls": [
+            {
+              "id": "4736961",
+              "image_url": "https://www.crookedmonkey.com/configured_product_attachment/s/image/4/736/961/Mug_03_Mockup_Tidal.png?0",
+              "name": "Mug_03_Mockup_Tidal.png",
+              "description": ""
+            }
+          ],
+          "views": [],
+          "decoration_unit_price": 0,
+          "teamnames": []
+        },
+        {
+          "id": "3243209106",
+          "item_type": 12,
+          "qty": 50,
+          "total_price": 600,
+          "unit_price": 12,
+          "discount": 0,
+          "tax": 0,
+          "tax_names": "",
+          "store_commission": 0,
+          "parent_store_commission": 0,
+          "commission_transaction_fee": 0,
+          "production_status": 3,
+          "processed_date": "2025-03-26T14:35:25.000+00:00",
+          "processed_by": null,
+          "shipped_date": "2025-03-26T14:35:25.000+00:00",
+          "shipped_by": null,
+          "production_assigned_to": null,
+          "fc_production_status": "",
+          "product_name": "Shipping - 2-4 Items USPS priority Mail/Ground"
+        },
+        {
+          "id": "3243137846",
+          "item_type": 25,
+          "qty": 200,
+          "total_price": 420,
+          "unit_price": 2.1,
+          "discount": 0,
+          "tax": 0,
+          "tax_names": "",
+          "store_commission": 0,
+          "parent_store_commission": 0,
+          "commission_transaction_fee": 0,
+          "production_status": 3,
+          "processed_date": "2025-05-29T12:04:30.000+00:00",
+          "processed_by": {
+            "id": 41984318,
+            "login": "Kserrano",
+            "firstname": "Katherine",
+            "lastname": "Serrano"
+          },
+          "shipped_date": "2025-05-29T12:04:00.000+00:00",
+          "shipped_by": {
+            "id": 41984318,
+            "login": "Kserrano",
+            "firstname": "Katherine",
+            "lastname": "Serrano"
+          },
+          "production_assigned_to": {
+            "id": 48246861,
+            "login": "Rdiaz1",
+            "firstname": "Rodrigo",
+            "lastname": "Juarez"
+          },
+          "fc_production_status": "",
+          "product_name": "1066-61 Recycled Aluminum Richmont Gel Ballpoint",
+          "product_description": "",
+          "product_freeform_color": "Blue",
+          "attachment_urls": [
+            {
+              "id": "4737466",
+              "image_url": "https://www.crookedmonkey.com/configured_product_attachment/s/image/4/737/466/Pen-Mock1-TidalCyber.png?0",
+              "name": "Pen-Mock1-TidalCyber.png",
+              "description": ""
+            }
+          ],
+          "views": [],
+          "decoration_unit_price": 0,
+          "teamnames": []
+        },
+        {
+          "id": "3243672786",
+          "item_type": 12,
+          "qty": 50,
+          "total_price": 437.5,
+          "unit_price": 8.75,
+          "discount": 0,
+          "tax": 0,
+          "tax_names": "",
+          "store_commission": 0,
+          "parent_store_commission": 0,
+          "commission_transaction_fee": 0,
+          "production_status": 3,
+          "processed_date": "2025-03-26T14:35:25.000+00:00",
+          "processed_by": null,
+          "shipped_date": "2025-03-26T14:35:25.000+00:00",
+          "shipped_by": null,
+          "production_assigned_to": null,
+          "fc_production_status": "",
+          "product_name": "Fulfillment - Kitted Individual Box (Gift Packaging)"
+        },
+        {
+          "id": "3243673291",
+          "item_type": 25,
+          "qty": 50,
+          "total_price": 0,
+          "unit_price": 0,
+          "discount": 0,
+          "tax": 0,
+          "tax_names": "",
+          "store_commission": 0,
+          "parent_store_commission": 0,
+          "commission_transaction_fee": 0,
+          "production_status": 1,
+          "processed_date": null,
+          "processed_by": null,
+          "shipped_date": null,
+          "shipped_by": null,
+          "production_assigned_to": {
+            "id": 48246861,
+            "login": "Rdiaz1",
+            "firstname": "Rodrigo",
+            "lastname": "Juarez"
+          },
+          "fc_production_status": "",
+          "product_name": "Custom Box",
+          "product_description": "",
+          "product_freeform_color": "Custom",
+          "attachment_urls": [
+            {
+              "id": "4744551",
+              "image_url": "https://www.crookedmonkey.com/configured_product_attachment/s/image/4/744/551/Package3-CustomBox-TidalCyber.jpg?0",
+              "name": "Package3-CustomBox-TidalCyber.jpg",
+              "description": ""
+            }
+          ],
+          "views": [],
+          "decoration_unit_price": 0,
+          "teamnames": []
+        }
+      ],
+      "notes": [
+        {
+          "note_type": "invoice_order_note",
+          "content": "In-hand date: 05/29\n\nShip the following items to:\n\nHilaire Ashworth Benson\n1216 McDonough Street,\nUnit A\nRichmond, VA 23224\n\nTotes – 50\nHydroFlask – 40\nPens – 50",
+          "created_at": "2025-03-26T14:35:00.000+00:00",
+          "from": {
+            "user_id": 67392626,
+            "email": "hilaire@tidalcyber.com",
+            "firstname": "Hilaire",
+            "lastname": "Ashworth Benson",
+            "country_code": "US",
+            "state": "Virginia",
+            "city": "Clifton",
+            "street": "7606 Partridge Berry Ln",
+            "postcode": "20124",
+            "company": "Tidal Cyber Inc.",
+            "company_id": 666046,
+            "salutation": null,
+            "ph_number": "(804) 855-9827"
+          }
+        },
+        {
+          "note_type": "internal",
+          "content": "In-hand date: May 30th\nEvent date: N/A\nPMS: Yes\n\nArtwork: https://drive.google.com/drive/folders/12Ke64h8qN-5pFRhgQOgZvY1YmO1w-soh\n\nBranding Guidelines: https://drive.google.com/drive/folders/141s-rdOwmXqLvcp4zTGoEArbStAS7Q7N",
+          "created_at": "2025-03-27T04:42:54.000+00:00",
+          "from": {
+            "user_id": 34703133,
+            "email": "pillar@crookedmonkey.com",
+            "firstname": "Pillar",
+            "lastname": "Nunes",
+            "country_code": "US",
+            "state": "District of Columbia",
+            "city": "Washington",
+            "street": "1100 15th St. NW 4th Floor",
+            "postcode": "20005",
+            "company": "Shirts without Buttons, DBA: Crooked Monkey",
+            "company_id": null,
+            "salutation": null,
+            "ph_number": "+55 (11) 97171 2165"
+          }
+        },
+        {
+          "note_type": "internal",
+          "content": "Ship the following items to:\n\nHilaire Ashworth Benson \n1216 McDonough Street,\nUnit A\nRichmond, VA 23224\n\nIn-hand date: May 29th (client will take the items to London on the 31st)\n\nTotes – 50\nHydroFlask – 40\nPens – 50\n",
+          "created_at": "2025-05-09T20:01:43.000+00:00",
+          "from": {
+            "user_id": 34703133,
+            "email": "pillar@crookedmonkey.com",
+            "firstname": "Pillar",
+            "lastname": "Nunes",
+            "country_code": "US",
+            "state": "District of Columbia",
+            "city": "Washington",
+            "street": "1100 15th St. NW 4th Floor",
+            "postcode": "20005",
+            "company": "Shirts without Buttons, DBA: Crooked Monkey",
+            "company_id": null,
+            "salutation": null,
+            "ph_number": "+55 (11) 97171 2165"
+          }
+        },
+        {
+          "note_type": "internal",
+          "content": "https://docs.google.com/spreadsheets/d/1pI7pZfOXP09Sex9MxPwWlsey59QLW2OV3-uWaIN8kQ8/edit?gid=0#gid=0",
+          "created_at": "2025-05-15T19:14:01.000+00:00",
+          "from": {
+            "user_id": 48246861,
+            "email": "Rodrigo@crookedmonkey.com",
+            "firstname": "Rodrigo",
+            "lastname": "Juarez",
+            "country_code": "US",
+            "state": null,
+            "city": null,
+            "street": null,
+            "postcode": null,
+            "company": "Shirts without Buttons, DBA: Crooked Monkey",
+            "company_id": null,
+            "salutation": null,
+            "ph_number": null
+          }
+        },
+        {
+          "note_type": "internal",
+          "content": "Navy 533c\nTeal:6137c\n ",
+          "created_at": "2025-05-22T12:36:21.000+00:00",
+          "from": {
+            "user_id": 48246861,
+            "email": "Rodrigo@crookedmonkey.com",
+            "firstname": "Rodrigo",
+            "lastname": "Juarez",
+            "country_code": "US",
+            "state": null,
+            "city": null,
+            "street": null,
+            "postcode": null,
+            "company": "Shirts without Buttons, DBA: Crooked Monkey",
+            "company_id": null,
+            "salutation": null,
+            "ph_number": null
+          }
+        }
+      ]
+    }
+  ],
+  "response_status": {
+    "code": 10001,
+    "severity": "SUCCESS",
+    "description": ""
+  }
+}

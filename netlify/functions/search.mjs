@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import process from "process";
 
 const sendGAEvent = async (searchTerm, username) => {
   const gaMeasurementId = process.env.GA_MEASUREMENT_ID;
