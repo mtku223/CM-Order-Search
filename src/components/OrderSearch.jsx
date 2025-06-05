@@ -91,44 +91,6 @@ function OrderSearch() {
     handleSearch(null, term); // Pass null for the event and term as searchString
   };
 
-  const onCreateDraftClick = () => {
-    if (!latestMessageId) return;
-
-    const messageBody = `
-        Hey Team,
-    
-        We are sending this project over Test update.
-    
-        Order number: ${orderData.order_id}
-        Ship by date: ${orderData.date_due}
-    
-        Order proof file: ${orderData.order_proof_pdf_url}
-    
-        The artwork and production files should be attached.
-      `;
-
-    if (typeof context.conversation.draftId !== "undefined") {
-      context.updateDraft(context.conversation.draftId, {
-        updateMode: "insert",
-        content: {
-          body: messageBody,
-          type: "text",
-        },
-      });
-    } else {
-      context.createDraft({
-        content: {
-          body: messageBody,
-          type: "text",
-        },
-        replyOptions: {
-          type: "replyAll",
-          originalMessageId: latestMessageId,
-        },
-      });
-    }
-  };
-
   const [selectedTab, setSelectedTab] = useState("Order Information");
   const tabs = [
     "Order Info",
@@ -203,8 +165,7 @@ function OrderSearch() {
     const selectedOrderLines = order.order_lines.filter(
       (line) =>
         selectedProductIds.includes(line.id) &&
-        line.fields &&
-        line.fields.length > 0
+        ((line.fields && line.fields.length > 0) || line.item_type === 25)
     );
 
     if (selectedOrderLines.length === 0) {
@@ -226,7 +187,7 @@ function OrderSearch() {
       emailContent += `Color: ${colorName}\n`;
       emailContent += `Quantity: ${line.qty} (Ship Exact)\n`;
 
-      // Size breakdown
+      // Size breakdown - only for items with fields/options
       if (
         line.fields &&
         line.fields.length > 0 &&
@@ -237,6 +198,11 @@ function OrderSearch() {
         line.fields[0].options.forEach((option) => {
           emailContent += `  - ${option.name}: ${option.qty}\n`;
         });
+      }
+
+      // Add description for freeform items
+      if (line.product_description) {
+        emailContent += `Description: ${line.product_description}\n`;
       }
 
       // PMS Colors
@@ -522,12 +488,48 @@ function OrderSearch() {
                           </div>
                         </AccordionSection>
                       ))}
-                    {/* Display extra charges (empty fields) last */}
+                    {/* Display freeform/custom products */}
                     {order.order_lines
                       .filter(
                         (lineItem) =>
-                          !lineItem.fields || lineItem.fields.length === 0
+                          lineItem.item_type === 25 &&
+                          (!lineItem.fields || lineItem.fields.length === 0)
                       )
+                      .map((lineItem, index) => (
+                        <AccordionSection
+                          key={index}
+                          id={`freeform-item-${index}`}
+                          title={`${lineItem.product_name}`}
+                          className="line-item-freeform"
+                        >
+                          <div className="line-item-details">
+                            <div className="info-row">
+                              <span>Quantity:</span> <span>{lineItem.qty}</span>
+                            </div>
+                            <div className="info-row">
+                              <span>Unit Price:</span>{" "}
+                              <span>${lineItem.unit_price}</span>
+                            </div>
+                            <div className="info-row">
+                              <span>Product Color:</span>
+                              <span>
+                                {lineItem.product_color?.name ||
+                                  lineItem.product_freeform_color ||
+                                  "Custom"}
+                              </span>
+                            </div>
+                            {lineItem.product_description && (
+                              <div className="info-row">
+                                <span>Description:</span>
+                                <span>{lineItem.product_description}</span>
+                              </div>
+                            )}
+                          </div>
+                        </AccordionSection>
+                      ))}
+                    {/* Display extra charges (fees/setup costs) last */}
+                    {order.order_lines
+                      .filter((lineItem) => lineItem.item_type === 12)
                       .map((lineItem, index) => (
                         <AccordionSection
                           key={index}
@@ -670,11 +672,13 @@ function OrderSearch() {
                         </div>
                       </div>
 
-                      {/* Product list */}
+                      {/* Product list - include both regular products and freeform products */}
                       {order.order_lines
                         .filter(
                           (lineItem) =>
-                            lineItem.fields && lineItem.fields.length > 0
+                            // Include items with fields (regular products) OR item_type 25 (freeform/custom products)
+                            (lineItem.fields && lineItem.fields.length > 0) ||
+                            lineItem.item_type === 25
                         )
                         .map((lineItem) => (
                           <div
@@ -712,6 +716,18 @@ function OrderSearch() {
                                   ({lineItem.product_code})
                                 </span>
                               )}
+                              {!lineItem.product_code &&
+                                lineItem.product_description && (
+                                  <span
+                                    style={{
+                                      marginLeft: "10px",
+                                      color: "#666",
+                                      fontStyle: "italic",
+                                    }}
+                                  >
+                                    {lineItem.product_description}
+                                  </span>
+                                )}
                             </div>
 
                             {selectedProducts[lineItem.id] && (
@@ -729,7 +745,7 @@ function OrderSearch() {
                                   </span>
                                 </div>
 
-                                {/* Size breakdown */}
+                                {/* Size breakdown - only for items with fields */}
                                 {lineItem.fields &&
                                   lineItem.fields.length > 0 &&
                                   lineItem.fields[0].options &&
@@ -850,11 +866,6 @@ function OrderSearch() {
           </>
         )}
         <PluginFooter>
-          {latestMessageId && (
-            <Button type="primary" onClick={onCreateDraftClick}>
-              Reply
-            </Button>
-          )}
           {latestMessageId && selectedTab === "Vendor Order" && (
             <Button type="secondary" onClick={onCreateVendorOrderDraft}>
               Create Vendor Order
