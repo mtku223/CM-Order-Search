@@ -201,7 +201,10 @@ function OrderSearch() {
       (id) => selectedProducts[id]
     );
     const selectedOrderLines = order.order_lines.filter(
-      (line) => selectedProductIds.includes(line.id) && line.fields.length > 0
+      (line) =>
+        selectedProductIds.includes(line.id) &&
+        line.fields &&
+        line.fields.length > 0
     );
 
     if (selectedOrderLines.length === 0) {
@@ -224,7 +227,12 @@ function OrderSearch() {
       emailContent += `Quantity: ${line.qty} (Ship Exact)\n`;
 
       // Size breakdown
-      if (line.fields.length > 0 && line.fields[0].options.length > 0) {
+      if (
+        line.fields &&
+        line.fields.length > 0 &&
+        line.fields[0].options &&
+        line.fields[0].options.length > 0
+      ) {
         emailContent += `Size Breakdown:\n`;
         line.fields[0].options.forEach((option) => {
           emailContent += `  - ${option.name}: ${option.qty}\n`;
@@ -459,7 +467,10 @@ function OrderSearch() {
                   <Accordion expandMode="multi">
                     {/* Display regular line items first */}
                     {order.order_lines
-                      .filter((lineItem) => lineItem.fields.length > 0)
+                      .filter(
+                        (lineItem) =>
+                          lineItem.fields && lineItem.fields.length > 0
+                      )
                       .map((lineItem, index) => (
                         <AccordionSection
                           key={index}
@@ -482,7 +493,9 @@ function OrderSearch() {
                                   lineItem.product_freeform_color}
                               </span>
                             </div>
-                            {lineItem.fields.length > 0 &&
+                            {lineItem.fields &&
+                              lineItem.fields.length > 0 &&
+                              lineItem.fields[0].options &&
                               lineItem.fields[0].options.length > 0 && (
                                 <div className="info-row">
                                   <span>SKU:</span>{" "}
@@ -491,25 +504,30 @@ function OrderSearch() {
                                   </span>
                                 </div>
                               )}
-                            {lineItem.fields.map((field, fieldIndex) => (
-                              <div key={fieldIndex} className="info-row">
-                                <span>Sizing:</span>
-                                <span>
-                                  {field.options
-                                    .map(
-                                      (option) =>
-                                        `${option.code} x ${option.qty}`
-                                    )
-                                    .join(", ")}
-                                </span>
-                              </div>
-                            ))}
+                            {lineItem.fields &&
+                              lineItem.fields.map((field, fieldIndex) => (
+                                <div key={fieldIndex} className="info-row">
+                                  <span>Sizing:</span>
+                                  <span>
+                                    {field.options &&
+                                      field.options
+                                        .map(
+                                          (option) =>
+                                            `${option.code} x ${option.qty}`
+                                        )
+                                        .join(", ")}
+                                  </span>
+                                </div>
+                              ))}
                           </div>
                         </AccordionSection>
                       ))}
                     {/* Display extra charges (empty fields) last */}
                     {order.order_lines
-                      .filter((lineItem) => lineItem.fields.length === 0)
+                      .filter(
+                        (lineItem) =>
+                          !lineItem.fields || lineItem.fields.length === 0
+                      )
                       .map((lineItem, index) => (
                         <AccordionSection
                           key={index}
@@ -654,7 +672,10 @@ function OrderSearch() {
 
                       {/* Product list */}
                       {order.order_lines
-                        .filter((lineItem) => lineItem.fields.length > 0)
+                        .filter(
+                          (lineItem) =>
+                            lineItem.fields && lineItem.fields.length > 0
+                        )
                         .map((lineItem) => (
                           <div
                             key={lineItem.id}
@@ -709,7 +730,9 @@ function OrderSearch() {
                                 </div>
 
                                 {/* Size breakdown */}
-                                {lineItem.fields.length > 0 &&
+                                {lineItem.fields &&
+                                  lineItem.fields.length > 0 &&
+                                  lineItem.fields[0].options &&
                                   lineItem.fields[0].options.length > 0 && (
                                     <div style={{ marginBottom: "8px" }}>
                                       <strong>Sizes: </strong>
