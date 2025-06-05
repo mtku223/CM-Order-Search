@@ -86,6 +86,7 @@ function OrderSearch() {
     "Line Items",
     "Billing & Shipping",
     "Vendor Order",
+    "PDF Tools",
   ];
 
   // Vendor Order state
@@ -98,6 +99,14 @@ function OrderSearch() {
     shippingNotes:
       "Ship to: *China order AIR Shipping (Let us know if Express is needed to meet in the date)\n*If this is being shipped from Abroad to the USA make sure the vendor add our Tax ID/EIN # (20-3592623).",
   });
+
+  // PDF Tools state
+  const [pdfExtractionData, setPdfExtractionData] = useState({
+    quote_pdf_pages: "",
+    production_pdf_pages: "",
+    proof_pdf_pages: "",
+  });
+  const [pdfExtractionLoading, setPdfExtractionLoading] = useState({});
 
   // CSS for clickable terms
   const clickableStyle = {
@@ -162,7 +171,7 @@ function OrderSearch() {
 
     let emailContent = `We are placing an order. Details below:\n\n`;
     emailContent += `Customer #: ${order.customer_id}\n`;
-    emailContent += `PO #: ${order.customer_po_number || "N/A"}\n\n`;
+    emailContent += `PO #: ${order.order_id || "N/A"}\n\n`;
 
     selectedOrderLines.forEach((line, index) => {
       emailContent += `--- Item ${index + 1} ---\n`;
@@ -196,7 +205,6 @@ function OrderSearch() {
       // Add attachment information
       if (line.attachment_urls && line.attachment_urls.length > 0) {
         emailContent += `Attachments: ${line.attachment_urls.length} product image(s) available\n`;
-        emailContent += `Note: Please download and attach product images using the plugin\n`;
       }
 
       // PMS Colors
@@ -321,6 +329,85 @@ function OrderSearch() {
         }, index * 500);
       });
     }
+  };
+
+  // PDF extraction functions
+  const handlePdfPageExtraction = async (pdfUrl, pdfType, order) => {
+    const pagesString = pdfExtractionData[`${pdfType}_pdf_pages`];
+
+    if (!pagesString.trim()) {
+      alert("Please enter page numbers to extract");
+      return;
+    }
+
+    // Parse page numbers (support formats like "1,3,5" or "1-3,5" or "1 3 5")
+    const pages = pagesString
+      .split(/[,\s]+/)
+      .map((page) => parseInt(page.trim()))
+      .filter((page) => !isNaN(page) && page > 0);
+
+    if (pages.length === 0) {
+      alert("Please enter valid page numbers (e.g., 1,3,5)");
+      return;
+    }
+
+    setPdfExtractionLoading((prev) => ({ ...prev, [pdfType]: true }));
+
+    try {
+      const response = await fetch("/.netlify/functions/extract-pdf-pages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          pdfUrl,
+          pages,
+          filename: `${order.order_id}_${pdfType}_pages_${pages.join("-")}.pdf`,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Create download link
+        const byteCharacters = atob(result.pdfData);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = result.filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        alert(
+          `Successfully extracted pages ${result.extractedPages.join(
+            ", "
+          )} from ${pdfType} PDF`
+        );
+      } else {
+        alert(`Error: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("PDF extraction error:", error);
+      alert("Failed to extract PDF pages. Please try again.");
+    } finally {
+      setPdfExtractionLoading((prev) => ({ ...prev, [pdfType]: false }));
+    }
+  };
+
+  const handlePdfPageInputChange = (pdfType, value) => {
+    setPdfExtractionData((prev) => ({
+      ...prev,
+      [`${pdfType}_pdf_pages`]: value,
+    }));
   };
 
   return (
@@ -993,6 +1080,265 @@ function OrderSearch() {
                             )}
                           </div>
                         ))}
+                    </div>
+                  </div>
+                )}
+                {selectedTab === "PDF Tools" && (
+                  <div className="pdf-tools">
+                    <div style={{ marginBottom: "20px" }}>
+                      <h3>PDF Page Extraction</h3>
+                      <p style={{ color: "#666", marginBottom: "15px" }}>
+                        Extract specific pages from order PDFs. Enter page
+                        numbers separated by commas (e.g., 1,3,5)
+                      </p>
+
+                      {/* Quote PDF */}
+                      {order.quote_pdf_url && (
+                        <div
+                          style={{
+                            marginBottom: "20px",
+                            padding: "15px",
+                            border: "1px solid #ddd",
+                            borderRadius: "4px",
+                          }}
+                        >
+                          <h4>Quote PDF</h4>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                              marginTop: "10px",
+                            }}
+                          >
+                            <input
+                              type="text"
+                              value={pdfExtractionData.quote_pdf_pages}
+                              onChange={(e) =>
+                                handlePdfPageInputChange(
+                                  "quote",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Page numbers (e.g., 1,3,5)"
+                              style={{
+                                padding: "6px",
+                                border: "1px solid #ccc",
+                                borderRadius: "4px",
+                                width: "200px",
+                              }}
+                            />
+                            <button
+                              onClick={() =>
+                                handlePdfPageExtraction(
+                                  order.quote_pdf_url,
+                                  "quote",
+                                  order
+                                )
+                              }
+                              disabled={pdfExtractionLoading.quote}
+                              style={{
+                                padding: "6px 12px",
+                                backgroundColor: "#007cba",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "4px",
+                                cursor: pdfExtractionLoading.quote
+                                  ? "not-allowed"
+                                  : "pointer",
+                                opacity: pdfExtractionLoading.quote ? 0.6 : 1,
+                              }}
+                            >
+                              {pdfExtractionLoading.quote
+                                ? "Extracting..."
+                                : "Extract Pages"}
+                            </button>
+                            <a
+                              href={order.quote_pdf_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                marginLeft: "10px",
+                                color: "#007cba",
+                                textDecoration: "none",
+                              }}
+                            >
+                              📄 View Full PDF
+                            </a>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Production PDF */}
+                      {order.production_pdf_url && (
+                        <div
+                          style={{
+                            marginBottom: "20px",
+                            padding: "15px",
+                            border: "1px solid #ddd",
+                            borderRadius: "4px",
+                          }}
+                        >
+                          <h4>Production PDF</h4>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                              marginTop: "10px",
+                            }}
+                          >
+                            <input
+                              type="text"
+                              value={pdfExtractionData.production_pdf_pages}
+                              onChange={(e) =>
+                                handlePdfPageInputChange(
+                                  "production",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Page numbers (e.g., 1,3,5)"
+                              style={{
+                                padding: "6px",
+                                border: "1px solid #ccc",
+                                borderRadius: "4px",
+                                width: "200px",
+                              }}
+                            />
+                            <button
+                              onClick={() =>
+                                handlePdfPageExtraction(
+                                  order.production_pdf_url,
+                                  "production",
+                                  order
+                                )
+                              }
+                              disabled={pdfExtractionLoading.production}
+                              style={{
+                                padding: "6px 12px",
+                                backgroundColor: "#007cba",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "4px",
+                                cursor: pdfExtractionLoading.production
+                                  ? "not-allowed"
+                                  : "pointer",
+                                opacity: pdfExtractionLoading.production
+                                  ? 0.6
+                                  : 1,
+                              }}
+                            >
+                              {pdfExtractionLoading.production
+                                ? "Extracting..."
+                                : "Extract Pages"}
+                            </button>
+                            <a
+                              href={order.production_pdf_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                marginLeft: "10px",
+                                color: "#007cba",
+                                textDecoration: "none",
+                              }}
+                            >
+                              📄 View Full PDF
+                            </a>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Order Proof PDF */}
+                      {order.order_proof_pdf_url && (
+                        <div
+                          style={{
+                            marginBottom: "20px",
+                            padding: "15px",
+                            border: "1px solid #ddd",
+                            borderRadius: "4px",
+                          }}
+                        >
+                          <h4>Order Proof PDF</h4>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                              marginTop: "10px",
+                            }}
+                          >
+                            <input
+                              type="text"
+                              value={pdfExtractionData.proof_pdf_pages}
+                              onChange={(e) =>
+                                handlePdfPageInputChange(
+                                  "proof",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Page numbers (e.g., 1,3,5)"
+                              style={{
+                                padding: "6px",
+                                border: "1px solid #ccc",
+                                borderRadius: "4px",
+                                width: "200px",
+                              }}
+                            />
+                            <button
+                              onClick={() =>
+                                handlePdfPageExtraction(
+                                  order.order_proof_pdf_url,
+                                  "proof",
+                                  order
+                                )
+                              }
+                              disabled={pdfExtractionLoading.proof}
+                              style={{
+                                padding: "6px 12px",
+                                backgroundColor: "#007cba",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "4px",
+                                cursor: pdfExtractionLoading.proof
+                                  ? "not-allowed"
+                                  : "pointer",
+                                opacity: pdfExtractionLoading.proof ? 0.6 : 1,
+                              }}
+                            >
+                              {pdfExtractionLoading.proof
+                                ? "Extracting..."
+                                : "Extract Pages"}
+                            </button>
+                            <a
+                              href={order.order_proof_pdf_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                marginLeft: "10px",
+                                color: "#007cba",
+                                textDecoration: "none",
+                              }}
+                            >
+                              📄 View Full PDF
+                            </a>
+                          </div>
+                        </div>
+                      )}
+
+                      {!order.quote_pdf_url &&
+                        !order.production_pdf_url &&
+                        !order.order_proof_pdf_url && (
+                          <div
+                            style={{
+                              padding: "20px",
+                              textAlign: "center",
+                              color: "#666",
+                              fontStyle: "italic",
+                            }}
+                          >
+                            No PDF files available for this order
+                          </div>
+                        )}
                     </div>
                   </div>
                 )}
