@@ -95,7 +95,6 @@ function OrderSearch() {
     inHandDate: "",
     coBrandedLabel: {},
     preProductionSample: {},
-    artworkLinks: "",
     shippingNotes:
       "Ship to: *China order AIR Shipping (Let us know if Express is needed to meet in the date)\n*If this is being shipped from Abroad to the USA make sure the vendor add our Tax ID/EIN # (20-3592623).",
   });
@@ -191,7 +190,7 @@ function OrderSearch() {
 
       // Add description for freeform items
       if (line.product_description) {
-        emailContent += `Description: ${line.product_description}\n`;
+        emailContent += `Decoration: ${line.product_description}\n`;
       }
 
       // Add attachment information
@@ -212,8 +211,6 @@ function OrderSearch() {
         coBranded === true ? "Yes" : coBranded === false ? "No" : "N/A"
       }\n`;
 
-      emailContent += `Pricing per unit Net: $${line.unit_price}\n`;
-
       // Pre-production sample
       const preProduction = vendorOrderData.preProductionSample[line.id];
       emailContent += `Pre-production sample/Photo: ${
@@ -222,8 +219,15 @@ function OrderSearch() {
     });
 
     // Artwork links
-    if (vendorOrderData.artworkLinks) {
-      emailContent += `Artwork and Mocks: ${vendorOrderData.artworkLinks}\n\n`;
+    const driveLinks = order.notes.flatMap((note) =>
+      extractDriveLinks(note.content)
+    );
+    if (driveLinks.length > 0) {
+      emailContent += `Artwork and Mocks:\n`;
+      driveLinks.forEach((link) => {
+        emailContent += `${link.descriptor}: ${link.url}\n`;
+      });
+      emailContent += `\n`;
     }
 
     // In-hand date
@@ -254,8 +258,10 @@ function OrderSearch() {
   };
 
   // Search functions
-  const searchDistributorCentral = (productName) => {
-    const searchQuery = encodeURIComponent(productName);
+  const searchDistributorCentral = (productName, productCode) => {
+    const searchQuery = productCode
+      ? encodeURIComponent(`${productCode} - ${productName}`)
+      : encodeURIComponent(productName);
     const url = `https://www.distributorcentral.com/product/search.cfm?query=${searchQuery}`;
 
     try {
@@ -270,8 +276,10 @@ function OrderSearch() {
     }
   };
 
-  const searchGoogle = (productName) => {
-    const searchQuery = encodeURIComponent(productName);
+  const searchGoogle = (productName, productCode) => {
+    const searchQuery = productCode
+      ? encodeURIComponent(`${productCode} ${productName}`)
+      : encodeURIComponent(productName);
     const url = `https://www.google.com/search?q=${searchQuery}`;
 
     try {
@@ -565,7 +573,7 @@ function OrderSearch() {
                             </div>
                             {lineItem.product_description && (
                               <div className="info-row">
-                                <span>Description:</span>
+                                <span>Decoration:</span>
                                 <span>{lineItem.product_description}</span>
                               </div>
                             )}
@@ -678,23 +686,41 @@ function OrderSearch() {
                         </div>
                         <div style={{ marginBottom: "10px" }}>
                           <label>Artwork Links:</label>
-                          <input
-                            type="text"
-                            value={vendorOrderData.artworkLinks}
-                            onChange={(e) =>
-                              handleVendorOrderDataChange(
-                                "artworkLinks",
-                                null,
-                                e.target.value
+                          <div style={{ marginLeft: "10px" }}>
+                            {order.notes.some(
+                              (note) =>
+                                extractDriveLinks(note.content).length > 0
+                            ) ? (
+                              order.notes.flatMap((note, noteIndex) =>
+                                extractDriveLinks(note.content).map(
+                                  (link, linkIndex) => (
+                                    <div
+                                      key={`${noteIndex}-${linkIndex}`}
+                                      style={{ marginBottom: "4px" }}
+                                    >
+                                      <a
+                                        href={link.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                          color: "blue",
+                                          textDecoration: "underline",
+                                        }}
+                                      >
+                                        {link.descriptor}
+                                      </a>
+                                    </div>
+                                  )
+                                )
                               )
-                            }
-                            placeholder="https://drive.google.com/..."
-                            style={{
-                              marginLeft: "10px",
-                              padding: "4px",
-                              width: "300px",
-                            }}
-                          />
+                            ) : (
+                              <span
+                                style={{ color: "#666", fontStyle: "italic" }}
+                              >
+                                No drive links found in order notes
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <div>
                           <label>Shipping Notes:</label>
@@ -796,7 +822,8 @@ function OrderSearch() {
                                     type="button"
                                     onClick={() =>
                                       searchDistributorCentral(
-                                        lineItem.product_name
+                                        lineItem.product_name,
+                                        lineItem.product_code
                                       )
                                     }
                                     style={{
@@ -814,7 +841,10 @@ function OrderSearch() {
                                   <button
                                     type="button"
                                     onClick={() =>
-                                      searchGoogle(lineItem.product_name)
+                                      searchGoogle(
+                                        lineItem.product_name,
+                                        lineItem.product_code
+                                      )
                                     }
                                     style={{
                                       marginRight: "10px",
@@ -875,7 +905,7 @@ function OrderSearch() {
                                   }}
                                 >
                                   <div>
-                                    <label>PMS Colors:</label>
+                                    <label>Decoration PMS Colors:</label>
                                     <input
                                       type="text"
                                       value={
