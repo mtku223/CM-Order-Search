@@ -169,27 +169,39 @@ function OrderSearch() {
       return "No products selected for vendor order.";
     }
 
-    let emailContent = `We are placing an order. Details below:\n\n`;
+    let emailContent = `<p>We are placing an order. Details below:</p>
+
+`;
     
     // General order info with bullet points and bold labels
-    emailContent += `• **Customer #:** ${order.customer_id}\n`;
-    emailContent += `• **PO #:** ${order.order_id || "N/A"}\n`;
+    emailContent += `<ul>
+<li><strong>Customer #:</strong> ${order.customer_id}</li>
+<li><strong>PO #:</strong> ${order.order_id || "N/A"}</li>`;
     if (vendorOrderData.inHandDate) {
-      emailContent += `• **In-hand Date:** ${vendorOrderData.inHandDate}\n`;
+      emailContent += `
+<li><strong>In-hand Date:</strong> ${vendorOrderData.inHandDate}</li>`;
     }
-    emailContent += `\n`;
-    emailContent += `**Please use our UPS Account for shipping:**\nX4R511 / Zip: 20817\n\n`;
+    emailContent += `
+</ul>
+
+<p><strong>Please use our UPS Account for shipping:</strong><br>
+X4R511 / Zip: 20817</p>
+
+`;
 
     selectedOrderLines.forEach((line, index) => {
-      emailContent += `--- Item ${index + 1} ---\n`;
-      emailContent += `• **Item:** ${line.product_name}\n`;
+      emailContent += `<p><strong>--- Item ${index + 1} ---</strong></p>
+<ul>
+<li><strong>Item:</strong> ${line.product_name}</li>`;
       if (line.product_code)
-        emailContent += `• **Product Code:** ${line.product_code}\n`;
+        emailContent += `
+<li><strong>Product Code:</strong> ${line.product_code}</li>`;
 
       const colorName =
         line.product_color?.name || line.product_freeform_color || "N/A";
-      emailContent += `• **Color:** ${colorName}\n`;
-      emailContent += `• **Quantity:** ${line.qty} (Ship Exact)\n`;
+      emailContent += `
+<li><strong>Color:</strong> ${colorName}</li>
+<li><strong>Quantity:</strong> ${line.qty} (Ship Exact)</li>`;
 
       // Size breakdown - only for items with fields/options
       if (
@@ -198,45 +210,59 @@ function OrderSearch() {
         line.fields[0].options &&
         line.fields[0].options.length > 0
       ) {
-        emailContent += `• **Size Breakdown:**\n`;
+        emailContent += `
+<li><strong>Size Breakdown:</strong>
+<ul>`;
         line.fields[0].options.forEach((option) => {
-          emailContent += `  - ${option.name}: ${option.qty}\n`;
+          emailContent += `
+<li>${option.name}: ${option.qty}</li>`;
         });
+        emailContent += `
+</ul>
+</li>`;
       }
 
       // Add description for freeform items
       if (line.product_description) {
-        emailContent += `• **Decoration:** ${line.product_description}\n`;
+        emailContent += `
+<li><strong>Decoration:</strong> ${line.product_description}</li>`;
       }
 
       // Add attachment information
       if (line.attachment_urls && line.attachment_urls.length > 0) {
-        emailContent += `• **Attachments:** ${line.attachment_urls.length} product image(s) available\n`;
+        emailContent += `
+<li><strong>Attachments:</strong> ${line.attachment_urls.length} product image(s) available</li>`;
       }
 
       // PMS Colors
       const pmsColor = vendorOrderData.pmsColors[line.id] || "";
       if (pmsColor) {
-        emailContent += `• **Imprint PMS Colors:** ${pmsColor}\n`;
+        emailContent += `
+<li><strong>Imprint PMS Colors:</strong> ${pmsColor}</li>`;
       }
 
       // Co-branded label - only include if not explicitly set to false (No)
       const coBranded = vendorOrderData.coBrandedLabel[line.id];
       if (coBranded !== false) {
-        emailContent += `• **Co-Branded CM Label:** ${
+        emailContent += `
+<li><strong>Co-Branded CM Label:</strong> ${
           coBranded === true ? "Yes" : "N/A"
-        }\n`;
+        }</li>`;
       }
 
       // Pre-production sample - only include if not explicitly set to false (No)
       const preProduction = vendorOrderData.preProductionSample[line.id];
       if (preProduction !== false) {
-        emailContent += `• **Pre-production sample/Photo:** ${
+        emailContent += `
+<li><strong>Pre-production sample/Photo:</strong> ${
           preProduction === true ? "Yes" : "N/A"
-        }\n`;
+        }</li>`;
       }
 
-      emailContent += `\n`;
+      emailContent += `
+</ul>
+
+`;
     });
 
     // Artwork links
@@ -244,16 +270,23 @@ function OrderSearch() {
       extractDriveLinks(note.content)
     );
     if (driveLinks.length > 0) {
-      emailContent += `**Artwork and Mocks:**\n`;
+      emailContent += `<p><strong>Artwork and Mocks:</strong></p>
+<ul>`;
       driveLinks.forEach((link) => {
-        emailContent += `• ${link.descriptor}: ${link.url}\n`;
+        emailContent += `
+<li>${link.descriptor}: <a href="${link.url}">${link.url}</a></li>`;
       });
-      emailContent += `\n`;
+      emailContent += `
+</ul>
+
+`;
     }
 
-    
-    emailContent += vendorOrderData.shippingNotes;
-    emailContent += `\n\nPlease, let me know if you have any questions.\n\nRegards.`;
+    emailContent += `<p>${vendorOrderData.shippingNotes.replace(/\n/g, '<br>')}</p>
+
+<p>Please, let me know if you have any questions.</p>
+
+<p>Regards.</p>`;
 
     return emailContent;
   };
@@ -267,7 +300,7 @@ function OrderSearch() {
     context.createDraft({
       content: {
         body: emailBody,
-        type: "text",
+        type: "html",
       },
       // Removed replyOptions to create a new email instead of reply
     });
