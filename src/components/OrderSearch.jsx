@@ -170,19 +170,26 @@ function OrderSearch() {
     }
 
     let emailContent = `We are placing an order. Details below:\n\n`;
-    emailContent += `Customer #: ${order.customer_id}\n`;
-    emailContent += `PO #: ${order.order_id || "N/A"}\n\n`;
+    
+    // General order info with bullet points and bold labels
+    emailContent += `• **Customer #:** ${order.customer_id}\n`;
+    emailContent += `• **PO #:** ${order.order_id || "N/A"}\n`;
+    if (vendorOrderData.inHandDate) {
+      emailContent += `• **In-hand Date:** ${vendorOrderData.inHandDate}\n`;
+    }
+    emailContent += `\n`;
+    emailContent += `**Please use our UPS Account for shipping:**\nX4R511 / Zip: 20817\n\n`;
 
     selectedOrderLines.forEach((line, index) => {
       emailContent += `--- Item ${index + 1} ---\n`;
-      emailContent += `Item: ${line.product_name}\n`;
+      emailContent += `• **Item:** ${line.product_name}\n`;
       if (line.product_code)
-        emailContent += `Product Code: ${line.product_code}\n`;
+        emailContent += `• **Product Code:** ${line.product_code}\n`;
 
       const colorName =
         line.product_color?.name || line.product_freeform_color || "N/A";
-      emailContent += `Color: ${colorName}\n`;
-      emailContent += `Quantity: ${line.qty} (Ship Exact)\n`;
+      emailContent += `• **Color:** ${colorName}\n`;
+      emailContent += `• **Quantity:** ${line.qty} (Ship Exact)\n`;
 
       // Size breakdown - only for items with fields/options
       if (
@@ -191,7 +198,7 @@ function OrderSearch() {
         line.fields[0].options &&
         line.fields[0].options.length > 0
       ) {
-        emailContent += `Size Breakdown:\n`;
+        emailContent += `• **Size Breakdown:**\n`;
         line.fields[0].options.forEach((option) => {
           emailContent += `  - ${option.name}: ${option.qty}\n`;
         });
@@ -199,31 +206,37 @@ function OrderSearch() {
 
       // Add description for freeform items
       if (line.product_description) {
-        emailContent += `Decoration: ${line.product_description}\n`;
+        emailContent += `• **Decoration:** ${line.product_description}\n`;
       }
 
       // Add attachment information
       if (line.attachment_urls && line.attachment_urls.length > 0) {
-        emailContent += `Attachments: ${line.attachment_urls.length} product image(s) available\n`;
+        emailContent += `• **Attachments:** ${line.attachment_urls.length} product image(s) available\n`;
       }
 
       // PMS Colors
       const pmsColor = vendorOrderData.pmsColors[line.id] || "";
       if (pmsColor) {
-        emailContent += `Imprint PMS Colors: ${pmsColor}\n`;
+        emailContent += `• **Imprint PMS Colors:** ${pmsColor}\n`;
       }
 
-      // Co-branded label
+      // Co-branded label - only include if not explicitly set to false (No)
       const coBranded = vendorOrderData.coBrandedLabel[line.id];
-      emailContent += `Co-Branded CM Label: ${
-        coBranded === true ? "Yes" : coBranded === false ? "No" : "N/A"
-      }\n`;
+      if (coBranded !== false) {
+        emailContent += `• **Co-Branded CM Label:** ${
+          coBranded === true ? "Yes" : "N/A"
+        }\n`;
+      }
 
-      // Pre-production sample
+      // Pre-production sample - only include if not explicitly set to false (No)
       const preProduction = vendorOrderData.preProductionSample[line.id];
-      emailContent += `Pre-production sample/Photo: ${
-        preProduction === true ? "Yes" : preProduction === false ? "No" : "N/A"
-      }\n\n`;
+      if (preProduction !== false) {
+        emailContent += `• **Pre-production sample/Photo:** ${
+          preProduction === true ? "Yes" : "N/A"
+        }\n`;
+      }
+
+      emailContent += `\n`;
     });
 
     // Artwork links
@@ -231,19 +244,14 @@ function OrderSearch() {
       extractDriveLinks(note.content)
     );
     if (driveLinks.length > 0) {
-      emailContent += `Artwork and Mocks:\n`;
+      emailContent += `**Artwork and Mocks:**\n`;
       driveLinks.forEach((link) => {
-        emailContent += `${link.descriptor}: ${link.url}\n`;
+        emailContent += `• ${link.descriptor}: ${link.url}\n`;
       });
       emailContent += `\n`;
     }
 
-    // In-hand date
-    if (vendorOrderData.inHandDate) {
-      emailContent += `In-hand date: ${vendorOrderData.inHandDate}\n\n`;
-    }
-
-    emailContent += `Please use our UPS Account for shipping:\nX4R511 / Zip: 20817\n\n`;
+    
     emailContent += vendorOrderData.shippingNotes;
     emailContent += `\n\nPlease, let me know if you have any questions.\n\nRegards.`;
 
