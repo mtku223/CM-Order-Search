@@ -1,6 +1,7 @@
 import { useFrontContext } from "../providers/frontContext";
 import { useState } from "react";
 import Front from "@frontapp/plugin-sdk";
+import PropTypes from "prop-types";
 import {
   PluginFooter,
   Button,
@@ -12,6 +13,20 @@ import {
   AccordionSection,
 } from "@frontapp/ui-kit";
 import OrderStatusBubble from "./OrderStatus";
+
+function KeyValueRow({ label, children }) {
+  return (
+    <div className="info-row">
+      <span>{label}</span>
+      <span>{children}</span>
+    </div>
+  );
+}
+
+KeyValueRow.propTypes = {
+  label: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+};
 
 function OrderSearch() {
   const context = useFrontContext();
@@ -410,87 +425,110 @@ function OrderSearch() {
     }));
   };
 
+  const extractBackendOrderId = (order) => {
+    const pdfUrls = [
+      order?.quote_pdf_url,
+      order?.production_pdf_url,
+      order?.order_proof_pdf_url,
+    ].filter(Boolean);
+
+    for (const url of pdfUrls) {
+      const match = url.match(
+        /\/download_(?:quote|worksheet|order_proof)\/(\d+)(?:\?|$)/
+      );
+      if (match?.[1]) {
+        return match[1];
+      }
+    }
+
+    return null;
+  };
+
   return (
     <PluginLayout>
-      <div
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 1000,
-          backgroundColor: "#fff",
-        }}
-      >
-        <form onSubmit={handleSearch}>
-          <PluginHeader search={{ query: searchTerm, onChange: setSearchTerm }}>
-            Crooked Monkey Order Search
-          </PluginHeader>
-          <input type="submit" style={{ display: "none" }} />{" "}
-          {/* Hidden submit button */}
-        </form>
-      </div>
-      <div className="App">
+      <div className="App sidebar-shell">
+        <div className="sticky-search">
+          <form onSubmit={handleSearch}>
+            <PluginHeader search={{ query: searchTerm, onChange: setSearchTerm }}>
+              Crooked Monkey Order Search
+            </PluginHeader>
+            <input type="submit" style={{ display: "none" }} />
+          </form>
+        </div>
         {orderData && orderData.orders && orderData.orders.length > 0 && (
           <>
-            <TabGroup>
-              {tabs.map((tab) => (
-                <Tab
-                  key={tab}
-                  name={tab}
-                  isSelected={tab === selectedTab}
-                  onClick={() => setSelectedTab(tab)}
-                />
-              ))}
-            </TabGroup>
-            {orderData.orders.map((order) => (
-              <div key={order.order_id}>
+            <div className="tabs-wrap">
+              <TabGroup>
+                {tabs.map((tab) => (
+                  <Tab
+                    key={tab}
+                    name={tab}
+                    isSelected={tab === selectedTab}
+                    onClick={() => setSelectedTab(tab)}
+                  />
+                ))}
+              </TabGroup>
+            </div>
+            {orderData.orders.map((order) => {
+              const backendOrderId = extractBackendOrderId(order);
+              const backendOrderUrl = backendOrderId
+                ? `https://www.crookedmonkey.com/bh/orders?p=2&id=${backendOrderId}`
+                : null;
+
+              return (
+              <div key={order.order_id} className="content-card">
                 {selectedTab === "Order Info" && (
                   <div className="order-info">
-                    <header className="App-header">
+                    <header>
+                      <h3 className="section-title">Order Info</h3>
                       <div className="order-info">
-                        <div className="info-row">
-                          <span>Order ID:</span> <span>{order.order_id}</span>
-                        </div>
+                        {backendOrderUrl && (
+                          <KeyValueRow label="Backend Order">
+                              <a
+                                href={backendOrderUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Open in Backend
+                              </a>
+                          </KeyValueRow>
+                        )}
+                        <KeyValueRow label="Order ID">{order.order_id}</KeyValueRow>
                         {order.created_by && (
-                          <div className="info-row">
-                            <span>Created By:</span>{" "}
-                            <span>{order.created_by.firstname}</span>
-                          </div>
+                          <KeyValueRow label="Created By">
+                            {order.created_by.firstname}
+                          </KeyValueRow>
                         )}
                         {order.order_lines.length > 0 &&
                           order.order_lines[0].production_assigned_to &&
                           order.order_lines[0].production_assigned_to.length >
                             0 && (
-                            <div className="info-row">
-                              <span>Production Lead:</span>
-                              <span>
+                            <KeyValueRow label="Production Lead">
                                 {
                                   order.order_lines[0].production_assigned_to[0]
                                     .firstname
                                 }
-                              </span>
-                            </div>
+                            </KeyValueRow>
                           )}
-                        <div className="info-row">
-                          <span>Job Name:</span> <span>{order.job_name}</span>
-                        </div>
+                        <KeyValueRow label="Job Name">
+                          {order.job_name || "—"}
+                        </KeyValueRow>
                         {order.billing_details && (
-                          <div className="info-row">
-                            <span>Company Name:</span>
-                            <span>{order.billing_details.company}</span>
-                          </div>
+                          <KeyValueRow label="Company Name">
+                            {order.billing_details.company}
+                          </KeyValueRow>
                         )}
-                        <div className="info-row">
-                          <span>Order Amount:</span>{" "}
-                          <span>${order.item_amount}</span>
-                        </div>
+                        <KeyValueRow label="Order Amount">
+                          ${order.item_amount}
+                        </KeyValueRow>
                         {order.shipping_method && (
-                          <div className="info-row">
-                            <span>Shipping Method:</span>
-                            <span>{order.shipping_method.name}</span>
-                          </div>
+                          <KeyValueRow label="Shipping Method">
+                            {order.shipping_method.name}
+                          </KeyValueRow>
                         )}
                         <OrderStatusBubble status={order.order_status} />
-                        <div className="notes-container">
+                        <div className="notes-container content-section">
+                          <h4 className="section-title">Notes</h4>
                           <Accordion expandMode="multi">
                             {order.notes.map((note, index) => (
                               <AccordionSection
@@ -505,7 +543,7 @@ function OrderSearch() {
                           </Accordion>
                           <div className="section-container">
                             <div>
-                              <span>
+                              <span className="compact-text">
                                 {order.notes.some(
                                   (note) =>
                                     extractDriveLinks(note.content).length > 0
@@ -533,6 +571,7 @@ function OrderSearch() {
                         </div>
                         {order.shipments && (
                           <div className="section-container">
+                            <h4 className="section-title">Tracking</h4>
                             {order.shipments.map((shipment, index) => (
                               <div key={index}>
                                 <p>
@@ -570,7 +609,9 @@ function OrderSearch() {
                   </div>
                 )}
                 {selectedTab === "Line Items" && (
-                  <Accordion expandMode="multi">
+                  <div>
+                    <h3 className="section-title">Line Items</h3>
+                    <Accordion expandMode="multi">
                     {/* Display regular line items first */}
                     {order.order_lines
                       .filter(
@@ -688,17 +729,18 @@ function OrderSearch() {
                           </div>
                         </AccordionSection>
                       ))}
-                  </Accordion>
+                    </Accordion>
+                  </div>
                 )}
                 {selectedTab === "Billing & Shipping" && (
                   <div>
+                    <h3 className="section-title">Billing & Shipping</h3>
                     {order.shipping_details && (
                       <div>
                         <div className="billing-phone">
-                          <div className="info-row">
-                            <span>Phone:</span>{" "}
-                            <span>{order.shipping_details.ph_number}</span>
-                          </div>
+                          <KeyValueRow label="Phone">
+                            {order.shipping_details.ph_number}
+                          </KeyValueRow>
                         </div>
                         <div className="shipping-section">
                           <div className="info-row">
@@ -743,20 +785,13 @@ function OrderSearch() {
                 )}
                 {selectedTab === "Vendor Order" && (
                   <div className="vendor-order">
-                    <div style={{ marginBottom: "20px" }}>
+                    <div>
                       <h3>Select Products for Vendor Order</h3>
 
                       {/* Global settings */}
-                      <div
-                        style={{
-                          marginBottom: "15px",
-                          padding: "10px",
-                          border: "1px solid #ddd",
-                          borderRadius: "4px",
-                        }}
-                      >
+                      <div className="vendor-panel">
                         <h4>Order Details</h4>
-                        <div style={{ marginBottom: "10px" }}>
+                        <div className="content-section">
                           <label>In-hand Date:</label>
                           <input
                             type="date"
@@ -768,12 +803,12 @@ function OrderSearch() {
                                 e.target.value
                               )
                             }
-                            style={{ marginLeft: "10px", padding: "4px" }}
+                            className="input-compact"
                           />
                         </div>
-                        <div style={{ marginBottom: "10px" }}>
+                        <div className="content-section">
                           <label>Artwork Links:</label>
-                          <div style={{ marginLeft: "10px" }}>
+                          <div>
                             {order.notes.some(
                               (note) =>
                                 extractDriveLinks(note.content).length > 0
@@ -783,16 +818,12 @@ function OrderSearch() {
                                   (link, linkIndex) => (
                                     <div
                                       key={`${noteIndex}-${linkIndex}`}
-                                      style={{ marginBottom: "4px" }}
                                     >
                                       <a
                                         href={link.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        style={{
-                                          color: "blue",
-                                          textDecoration: "underline",
-                                        }}
+                                        className="link-action"
                                       >
                                         {link.descriptor}
                                       </a>
@@ -801,9 +832,7 @@ function OrderSearch() {
                                 )
                               )
                             ) : (
-                              <span
-                                style={{ color: "#666", fontStyle: "italic" }}
-                              >
+                              <span className="compact-text">
                                 No drive links found in order notes
                               </span>
                             )}
@@ -820,12 +849,7 @@ function OrderSearch() {
                                 e.target.value
                               )
                             }
-                            style={{
-                              marginLeft: "10px",
-                              padding: "4px",
-                              width: "400px",
-                              height: "60px",
-                            }}
+                            className="textarea-compact"
                           />
                         </div>
                       </div>
@@ -841,12 +865,7 @@ function OrderSearch() {
                         .map((lineItem) => (
                           <div
                             key={lineItem.id}
-                            style={{
-                              marginBottom: "15px",
-                              padding: "10px",
-                              border: "1px solid #ddd",
-                              borderRadius: "4px",
-                            }}
+                            className="vendor-panel"
                           >
                             <div
                               style={{
@@ -913,15 +932,7 @@ function OrderSearch() {
                                         lineItem.product_code
                                       )
                                     }
-                                    style={{
-                                      marginRight: "10px",
-                                      padding: "4px 8px",
-                                      fontSize: "12px",
-                                      backgroundColor: "#e3f2fd",
-                                      border: "1px solid #90caf9",
-                                      borderRadius: "4px",
-                                      cursor: "pointer",
-                                    }}
+                                    className="button-muted"
                                   >
                                     🔍 Search DistributorCentral
                                   </button>
@@ -933,15 +944,7 @@ function OrderSearch() {
                                         lineItem.product_code
                                       )
                                     }
-                                    style={{
-                                      marginRight: "10px",
-                                      padding: "4px 8px",
-                                      fontSize: "12px",
-                                      backgroundColor: "#f3e5f5",
-                                      border: "1px solid #ce93d8",
-                                      borderRadius: "4px",
-                                      cursor: "pointer",
-                                    }}
+                                    className="button-muted"
                                   >
                                     🔍 Search Google
                                   </button>
@@ -952,14 +955,7 @@ function OrderSearch() {
                                         onClick={() =>
                                           handleAttachments(lineItem)
                                         }
-                                        style={{
-                                          padding: "4px 8px",
-                                          fontSize: "12px",
-                                          backgroundColor: "#e8f5e8",
-                                          border: "1px solid #81c784",
-                                          borderRadius: "4px",
-                                          cursor: "pointer",
-                                        }}
+                                        className="button-muted"
                                       >
                                         📎 Download Images (
                                         {lineItem.attachment_urls.length})
@@ -1008,11 +1004,7 @@ function OrderSearch() {
                                         )
                                       }
                                       placeholder="e.g., 345, 186C"
-                                      style={{
-                                        marginLeft: "5px",
-                                        padding: "4px",
-                                        width: "120px",
-                                      }}
+                                      className="input-compact"
                                     />
                                   </div>
 
@@ -1035,10 +1027,7 @@ function OrderSearch() {
                                             : ""
                                         )
                                       }
-                                      style={{
-                                        marginLeft: "5px",
-                                        padding: "4px",
-                                      }}
+                                      className="select-compact"
                                     >
                                       <option value="">Select...</option>
                                       <option value="true">Yes</option>
@@ -1065,10 +1054,7 @@ function OrderSearch() {
                                             : ""
                                         )
                                       }
-                                      style={{
-                                        marginLeft: "5px",
-                                        padding: "4px",
-                                      }}
+                                      className="select-compact"
                                     >
                                       <option value="">Select...</option>
                                       <option value="true">Yes</option>
@@ -1085,23 +1071,16 @@ function OrderSearch() {
                 )}
                 {selectedTab === "PDF Tools" && (
                   <div className="pdf-tools">
-                    <div style={{ marginBottom: "20px" }}>
+                    <div>
                       <h3>PDF Page Extraction</h3>
-                      <p style={{ color: "#666", marginBottom: "15px" }}>
+                      <p className="compact-text">
                         Extract specific pages from order PDFs. Enter page
                         numbers separated by commas (e.g., 1,3,5)
                       </p>
 
                       {/* Quote PDF */}
                       {order.quote_pdf_url && (
-                        <div
-                          style={{
-                            marginBottom: "20px",
-                            padding: "15px",
-                            border: "1px solid #ddd",
-                            borderRadius: "4px",
-                          }}
-                        >
+                        <div className="pdf-panel">
                           <h4>Quote PDF</h4>
                           <div
                             style={{
@@ -1121,12 +1100,7 @@ function OrderSearch() {
                                 )
                               }
                               placeholder="Page numbers (e.g., 1,3,5)"
-                              style={{
-                                padding: "6px",
-                                border: "1px solid #ccc",
-                                borderRadius: "4px",
-                                width: "200px",
-                              }}
+                              className="input-compact"
                             />
                             <button
                               onClick={() =>
@@ -1157,11 +1131,7 @@ function OrderSearch() {
                               href={order.quote_pdf_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              style={{
-                                marginLeft: "10px",
-                                color: "#007cba",
-                                textDecoration: "none",
-                              }}
+                              className="link-action"
                             >
                               📄 View Full PDF
                             </a>
@@ -1171,14 +1141,7 @@ function OrderSearch() {
 
                       {/* Production PDF */}
                       {order.production_pdf_url && (
-                        <div
-                          style={{
-                            marginBottom: "20px",
-                            padding: "15px",
-                            border: "1px solid #ddd",
-                            borderRadius: "4px",
-                          }}
-                        >
+                        <div className="pdf-panel">
                           <h4>Production PDF</h4>
                           <div
                             style={{
@@ -1198,12 +1161,7 @@ function OrderSearch() {
                                 )
                               }
                               placeholder="Page numbers (e.g., 1,3,5)"
-                              style={{
-                                padding: "6px",
-                                border: "1px solid #ccc",
-                                borderRadius: "4px",
-                                width: "200px",
-                              }}
+                              className="input-compact"
                             />
                             <button
                               onClick={() =>
@@ -1236,11 +1194,7 @@ function OrderSearch() {
                               href={order.production_pdf_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              style={{
-                                marginLeft: "10px",
-                                color: "#007cba",
-                                textDecoration: "none",
-                              }}
+                              className="link-action"
                             >
                               📄 View Full PDF
                             </a>
@@ -1250,14 +1204,7 @@ function OrderSearch() {
 
                       {/* Order Proof PDF */}
                       {order.order_proof_pdf_url && (
-                        <div
-                          style={{
-                            marginBottom: "20px",
-                            padding: "15px",
-                            border: "1px solid #ddd",
-                            borderRadius: "4px",
-                          }}
-                        >
+                        <div className="pdf-panel">
                           <h4>Order Proof PDF</h4>
                           <div
                             style={{
@@ -1277,12 +1224,7 @@ function OrderSearch() {
                                 )
                               }
                               placeholder="Page numbers (e.g., 1,3,5)"
-                              style={{
-                                padding: "6px",
-                                border: "1px solid #ccc",
-                                borderRadius: "4px",
-                                width: "200px",
-                              }}
+                              className="input-compact"
                             />
                             <button
                               onClick={() =>
@@ -1313,11 +1255,7 @@ function OrderSearch() {
                               href={order.order_proof_pdf_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              style={{
-                                marginLeft: "10px",
-                                color: "#007cba",
-                                textDecoration: "none",
-                              }}
+                              className="link-action"
                             >
                               📄 View Full PDF
                             </a>
@@ -1328,14 +1266,7 @@ function OrderSearch() {
                       {!order.quote_pdf_url &&
                         !order.production_pdf_url &&
                         !order.order_proof_pdf_url && (
-                          <div
-                            style={{
-                              padding: "20px",
-                              textAlign: "center",
-                              color: "#666",
-                              fontStyle: "italic",
-                            }}
-                          >
+                          <div className="compact-text">
                             No PDF files available for this order
                           </div>
                         )}
@@ -1343,7 +1274,8 @@ function OrderSearch() {
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </>
         )}
         <PluginFooter>

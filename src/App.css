@@ -1,116 +1,180 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto; /* Keeps horizontal centering */
-  padding: 1rem;
-  text-align: center;
+  width: 100%;
+  margin: 0;
+  padding: 8px;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.App {
+  width: 100%;
+  font-size: 13px;
+  line-height: 1.35;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.sidebar-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.sticky-search {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #f8fafc;
+  padding-bottom: 4px;
 }
 
-.card {
-  padding: 2em;
+.tabs-wrap {
+  border: 1px solid #dbe5ef;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 2px;
 }
 
-.read-the-docs {
-  color: #888;
+.content-card {
+  border: 1px solid #dbe5ef;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 10px;
 }
 
-/* Add this in your CSS file */
+.content-section {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.section-title {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
 .info-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px; /* Adjust as needed */
-
-  align-items: center; /* Vertically center */
-  font-size: 84%; /* Adjust the percentage as needed */
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: 12px;
 }
 
-.note-accordion {
-  margin-bottom: 10px;
-  margin-top: 10px;
+.info-row > span:first-child {
+  color: #475569;
+  min-width: 110px;
+  font-weight: 600;
 }
 
-.note-content {
-  display: none;
-  margin-top: 5px;
+.info-row > span:last-child {
+  color: #0f172a;
+  text-align: right;
+  word-break: break-word;
 }
 
-.note-accordion.open .note-content {
-  display: block;
+.info-row a,
+.link-action {
+  color: #0369a1;
+  text-decoration: none;
+  font-weight: 600;
 }
 
-.billing-section {
-  border-top: 1px solid rgba(0, 0, 0, 0.1); /* Faint border */
-  padding-top: 10px; /* Spacing above the border */
+.info-row a:hover,
+.link-action:hover {
+  text-decoration: underline;
 }
 
-.shipping-section {
-  padding-top: 10px;
-  border: solid rgba(2, 156, 97, 0.2);
-}
-
+.notes-container,
 .section-container {
-  border-top: 1px solid rgba(0, 0, 0, 0.1); /* Thin, light top border */
-  padding-top: 10px; /* Space above the border */
-  margin-top: 10px; /* Space above the container */
-}
-
-.notes-container {
-  border-top: 1px solid rgba(0, 0, 0, 0.1); /* Thin, light top border */
-  padding-top: 10px; /* Space above the border */
-  margin-top: 10px; /* Space above the container */
-  text-align: center;
-}
-
-.accordion-section:active {
-  background-color: grey; /* Replace 'grey' with the specific color code you're using */
-}
-
-.order-info {
+  margin-top: 10px;
   padding-top: 10px;
+  border-top: 1px solid #e2e8f0;
 }
 
-.billing-phone {
-  padding-top: 15px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-.active-section {
-  background-color: #f0f0f0; /* Your desired highlight color */
+.compact-text {
+  font-size: 12px;
+  color: #475569;
 }
 
-.border {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  padding-top: 3px;
-  padding-bottom: 2px;
+.line-item-details {
+  font-size: 12px;
+}
+
+.line-item-main,
+.line-item-freeform,
+.line-item-extra {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  background: #fcfdff;
+}
+
+.billing-phone,
+.shipping-section,
+.billing-section {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+  background: #fcfdff;
+}
+
+.vendor-order h3,
+.pdf-tools h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+
+.vendor-panel,
+.pdf-panel {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #ffffff;
+}
+
+.input-compact,
+.textarea-compact,
+.select-compact {
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 12px;
+  background: #ffffff;
+}
+
+.textarea-compact {
+  width: 100%;
+  min-height: 70px;
+  resize: vertical;
+}
+
+.button-muted {
+  padding: 5px 9px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: 1px solid #bfd5e6;
+  background: #f0f7fc;
+  color: #0f172a;
+  cursor: pointer;
+}
+
+.button-muted:hover {
+  background: #e2f1fb;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #0284c7;
+  outline-offset: 2px;
 }
 
 #search-history {
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-top: 8px;
 }
