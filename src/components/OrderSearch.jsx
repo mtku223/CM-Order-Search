@@ -513,7 +513,7 @@ X4R511 / Zip: 20817</p>
             {orderData.orders.map((order) => {
               const backendOrderId = extractBackendOrderId(order);
               const backendOrderUrl = backendOrderId
-                ? `https://www.crookedmonkey.com/bh/orders?p=2&id=${backendOrderId}`
+                ? `https://www.crookedmonkey.com/bh/orders#p=2&id=${backendOrderId}`
                 : null;
 
               return (
