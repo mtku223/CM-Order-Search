@@ -57,11 +57,13 @@ export async function handler(event) {
       selections,
     });
 
-    body.set("username", process.env.API_USERNAME);
-    body.set("password", process.env.API_PASSWORD);
+    const authParams = new URLSearchParams({
+      username: process.env.API_USERNAME,
+      password: process.env.API_PASSWORD,
+    });
 
     const response = await fetch(
-      `${DECO_BASE_URL}/manage_orders/update_order_status`,
+      `${DECO_BASE_URL}/manage_orders/update_order_status?${authParams.toString()}`,
       {
         method: "POST",
         headers: {
