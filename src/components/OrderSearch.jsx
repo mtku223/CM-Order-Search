@@ -42,10 +42,10 @@ function OrderSearch() {
 
     const searchQuery = searchString || searchTerm;
 
-    let modifiedSearchTerm = searchTerm;
+    let modifiedSearchTerm = searchQuery;
     setSelectedTab("Order Info");
-    if (!searchTerm.toLowerCase().startsWith("order-")) {
-      modifiedSearchTerm = "Order-" + searchTerm;
+    if (!searchQuery.toLowerCase().startsWith("order-")) {
+      modifiedSearchTerm = "Order-" + searchQuery;
     }
 
     const username = context.teammate ? context.teammate.name : "anonymous";
@@ -122,6 +122,11 @@ function OrderSearch() {
     proof_pdf_pages: "",
   });
   const [pdfExtractionLoading, setPdfExtractionLoading] = useState({});
+  const [productionSelections, setProductionSelections] = useState({});
+  const [workflowQuantities, setWorkflowQuantities] = useState({});
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [productionActionLoading, setProductionActionLoading] = useState(null);
+  const [productionActionMessage, setProductionActionMessage] = useState(null);
 
   // CSS for clickable terms
   const clickableStyle = {
@@ -485,6 +490,351 @@ X4R511 / Zip: 20817</p>
     return null;
   };
 
+  const getWorkflowKey = (order, lineItem, workflowItem) =>
+    `${order.order_id}:${lineItem.id}:${workflowItem.id}`;
+
+  const getLineItemWorkflowItems = (lineItem) =>
+    Array.isArray(lineItem.workflow_items) ? lineItem.workflow_items : [];
+
+  const getWorkflowPoNumbers = (workflowItem) =>
+    [
+      ...new Set(
+        (workflowItem.purchase_order_lines || [])
+          .map((poLine) => poLine.po_number)
+          .filter(Boolean)
+      ),
+    ];
+
+  const getWorkflowReceiveOutstanding = (workflowItem) =>
+    (workflowItem.purchase_order_lines || []).reduce((total, poLine) => {
+      const ordered = Number(poLine.qty_ordered || 0);
+      const received = Number(poLine.qty_received || 0);
+      return total + Math.max(ordered - received, 0);
+    }, 0);
+
+  const getWorkflowLabel = (workflowItem, index) => {
+    const labelParts = [
+      workflowItem.vendor_sku,
+      workflowItem.option_id ? `Option ${workflowItem.option_id}` : null,
+      workflowItem.sub_option_id
+        ? `Sub-option ${workflowItem.sub_option_id}`
+        : null,
+    ].filter(Boolean);
+
+    return labelParts.length > 0
+      ? labelParts.join(" · ")
+      : `Workflow item ${index + 1}`;
+  };
+
+  const buildProductionSelection = (order, lineItem, workflowItem, index) => ({
+    key: getWorkflowKey(order, lineItem, workflowItem),
+    orderId: order.order_id,
+    orderLineId: lineItem.id,
+    workflowItemId: workflowItem.id,
+    lineItemName: lineItem.product_name,
+    workflowLabel: getWorkflowLabel(workflowItem, index),
+    poNumbers: getWorkflowPoNumbers(workflowItem),
+  });
+
+  const getSelectedWorkflowEntries = () =>
+    Object.values(productionSelections).map((selection) => ({
+      ...selection,
+      quantity: workflowQuantities[selection.key] || "",
+    }));
+
+  const refreshOrderData = async (order) => {
+    const username = context.teammate ? context.teammate.name : "anonymous";
+    const serverUrl = `/.netlify/functions/search?searchTerm=${encodeURIComponent(
+      order.order_id
+    )}&username=${encodeURIComponent(username)}`;
+    const response = await fetch(serverUrl);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    setOrderData(data);
+  };
+
+  const handleLineItemSelection = (order, lineItem, isSelected) => {
+    const workflowItems = getLineItemWorkflowItems(lineItem);
+
+    setProductionSelections((prev) => {
+      const nextSelections = { ...prev };
+
+      workflowItems.forEach((workflowItem, index) => {
+        const selection = buildProductionSelection(
+          order,
+          lineItem,
+          workflowItem,
+          index
+        );
+
+        if (isSelected) {
+          nextSelections[selection.key] = selection;
+        } else {
+          delete nextSelections[selection.key];
+        }
+      });
+
+      return nextSelections;
+    });
+  };
+
+  const handleWorkflowSelection = (
+    order,
+    lineItem,
+    workflowItem,
+    index,
+    isSelected
+  ) => {
+    const selection = buildProductionSelection(
+      order,
+      lineItem,
+      workflowItem,
+      index
+    );
+
+    setProductionSelections((prev) => {
+      const nextSelections = { ...prev };
+
+      if (isSelected) {
+        nextSelections[selection.key] = selection;
+      } else {
+        delete nextSelections[selection.key];
+      }
+
+      return nextSelections;
+    });
+  };
+
+  const handleWorkflowQuantityChange = (selectionKey, value) => {
+    setWorkflowQuantities((prev) => ({
+      ...prev,
+      [selectionKey]: value,
+    }));
+  };
+
+  const handleProductionAction = async (action, order) => {
+    const selectedEntries = getSelectedWorkflowEntries();
+
+    if (selectedEntries.length === 0) {
+      setProductionActionMessage({
+        type: "error",
+        text: "Select at least one workflow item first.",
+      });
+      return;
+    }
+
+    if (action === "ship" && !trackingNumber.trim()) {
+      setProductionActionMessage({
+        type: "error",
+        text: "Enter a tracking number before adding tracking.",
+      });
+      return;
+    }
+
+    const endpoint =
+      action === "receive"
+        ? "/.netlify/functions/receive-stock"
+        : "/.netlify/functions/update-order-status";
+    const payload =
+      action === "receive"
+        ? { selections: selectedEntries }
+        : {
+            action,
+            orderId: order.order_id,
+            selections: selectedEntries,
+            trackingNumber: trackingNumber.trim(),
+          };
+
+    setProductionActionLoading(action);
+    setProductionActionMessage(null);
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+
+      if (!response.ok || result.error) {
+        throw new Error(result.details || result.error || "Action failed");
+      }
+
+      await refreshOrderData(order);
+      setSelectedTab("Line Items");
+      setProductionActionMessage({
+        type: "success",
+        text: result.message || "Production task completed.",
+      });
+
+      if (action === "ship") {
+        setTrackingNumber("");
+      }
+    } catch (error) {
+      console.error("Production action error:", error);
+      setProductionActionMessage({
+        type: "error",
+        text: error.message,
+      });
+    } finally {
+      setProductionActionLoading(null);
+    }
+  };
+
+  const renderProductionTaskToolbar = (order) => {
+    const selectedCount = Object.keys(productionSelections).length;
+    const isLoading = Boolean(productionActionLoading);
+
+    return (
+      <div className="production-task-toolbar">
+        <div className="production-task-summary">
+          <strong>{selectedCount}</strong> workflow item
+          {selectedCount === 1 ? "" : "s"} selected
+        </div>
+        <div className="production-task-actions">
+          <button
+            type="button"
+            className="button-muted"
+            disabled={selectedCount === 0 || isLoading}
+            onClick={() => handleProductionAction("receive", order)}
+          >
+            {productionActionLoading === "receive"
+              ? "Receiving..."
+              : "Mark Received"}
+          </button>
+          <button
+            type="button"
+            className="button-muted"
+            disabled={selectedCount === 0 || isLoading}
+            onClick={() => handleProductionAction("produce", order)}
+          >
+            {productionActionLoading === "produce"
+              ? "Producing..."
+              : "Mark Produced"}
+          </button>
+          <input
+            type="text"
+            value={trackingNumber}
+            onChange={(e) => setTrackingNumber(e.target.value)}
+            placeholder="Tracking number"
+            className="input-compact tracking-input"
+          />
+          <button
+            type="button"
+            className="button-muted"
+            disabled={selectedCount === 0 || isLoading || !trackingNumber.trim()}
+            onClick={() => handleProductionAction("ship", order)}
+          >
+            {productionActionLoading === "ship"
+              ? "Adding Tracking..."
+              : "Add Tracking / Mark Shipped"}
+          </button>
+        </div>
+        {productionActionMessage && (
+          <div
+            className={`production-task-message production-task-message-${productionActionMessage.type}`}
+          >
+            {productionActionMessage.text}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderLineItemProductionControls = (order, lineItem) => {
+    const workflowItems = getLineItemWorkflowItems(lineItem);
+
+    if (lineItem.item_type === 12) {
+      return null;
+    }
+
+    if (workflowItems.length === 0) {
+      return (
+        <div className="compact-text production-task-note">
+          No workflow data available for production actions.
+        </div>
+      );
+    }
+
+    const selectedWorkflowCount = workflowItems.filter(
+      (workflowItem) =>
+        productionSelections[getWorkflowKey(order, lineItem, workflowItem)]
+    ).length;
+    const allSelected = selectedWorkflowCount === workflowItems.length;
+
+    return (
+      <div className="production-task-controls">
+        <label className="production-task-line-select">
+          <input
+            type="checkbox"
+            checked={allSelected}
+            onChange={(e) =>
+              handleLineItemSelection(order, lineItem, e.target.checked)
+            }
+          />
+          Select all workflow items
+          {selectedWorkflowCount > 0 && !allSelected
+            ? ` (${selectedWorkflowCount}/${workflowItems.length} selected)`
+            : ""}
+        </label>
+        <div className="workflow-task-list">
+          {workflowItems.map((workflowItem, index) => {
+            const selectionKey = getWorkflowKey(order, lineItem, workflowItem);
+            const isSelected = Boolean(productionSelections[selectionKey]);
+            const poNumbers = getWorkflowPoNumbers(workflowItem);
+            const receiveOutstanding =
+              getWorkflowReceiveOutstanding(workflowItem);
+
+            return (
+              <div key={selectionKey} className="workflow-task-row">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={(e) =>
+                      handleWorkflowSelection(
+                        order,
+                        lineItem,
+                        workflowItem,
+                        index,
+                        e.target.checked
+                      )
+                    }
+                  />
+                  {getWorkflowLabel(workflowItem, index)}
+                </label>
+                <div className="compact-text">
+                  PO: {poNumbers.length > 0 ? poNumbers.join(", ") : "None"} ·
+                  Receive outstanding: {receiveOutstanding} · Produced:{" "}
+                  {workflowItem.qty_produced ?? "N/A"} · Shipped:{" "}
+                  {workflowItem.qty_shipped ?? "N/A"}
+                </div>
+                {isSelected && (
+                  <input
+                    type="number"
+                    min="1"
+                    value={workflowQuantities[selectionKey] || ""}
+                    onChange={(e) =>
+                      handleWorkflowQuantityChange(selectionKey, e.target.value)
+                    }
+                    placeholder="Auto outstanding"
+                    className="input-compact quantity-input"
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <PluginLayout>
       <div className="App sidebar-shell">
@@ -652,6 +1002,7 @@ X4R511 / Zip: 20817</p>
                 {selectedTab === "Line Items" && (
                   <div>
                     <h3 className="section-title">Line Items</h3>
+                    {renderProductionTaskToolbar(order)}
                     <Accordion expandMode="multi">
                     {/* Display regular line items first */}
                     {order.order_lines
@@ -667,6 +1018,7 @@ X4R511 / Zip: 20817</p>
                           className="line-item-main"
                         >
                           <div className="line-item-details">
+                            {renderLineItemProductionControls(order, lineItem)}
                             <div className="info-row">
                               <span>Quantity:</span> <span>{lineItem.qty}</span>
                             </div>
@@ -725,6 +1077,7 @@ X4R511 / Zip: 20817</p>
                           className="line-item-freeform"
                         >
                           <div className="line-item-details">
+                            {renderLineItemProductionControls(order, lineItem)}
                             <div className="info-row">
                               <span>Quantity:</span> <span>{lineItem.qty}</span>
                             </div>

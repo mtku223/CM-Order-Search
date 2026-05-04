@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import Front from "@frontapp/plugin-sdk";
+import PropTypes from "prop-types";
 
 /*
  * Context.
@@ -11,6 +12,7 @@ export const FrontContext = createContext();
  * Hook.
  */
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useFrontContext() {
   return useContext(FrontContext);
 }
@@ -32,4 +34,8 @@ export const FrontContextProvider = ({ children }) => {
   return (
     <FrontContext.Provider value={context}>{children}</FrontContext.Provider>
   );
+};
+
+FrontContextProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
