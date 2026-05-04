@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import process from "process";
-import { buildUpdateOrderStatusBody } from "./decoPayloads.mjs";
+import { buildUpdateOrderStatusBody } from "../lib/decoPayloads.mjs";
 
 const DECO_BASE_URL = "https://www.crookedmonkey.com/api/json";
 

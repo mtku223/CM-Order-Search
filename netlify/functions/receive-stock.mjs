@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import process from "process";
-import { buildReceiveStockPayloads } from "./decoPayloads.mjs";
+import { buildReceiveStockPayloads } from "../lib/decoPayloads.mjs";
 
 const DECO_BASE_URL = "https://www.crookedmonkey.com/api/json";
 

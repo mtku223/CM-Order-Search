@@ -4,7 +4,7 @@ import {
   buildReceiveStockPayloads,
   buildUpdateOrderStatusBody,
   getOutstandingQuantity,
-} from "./decoPayloads.mjs";
+} from "../netlify/lib/decoPayloads.mjs";
 
 describe("Deco payload helpers", () => {
   it("calculates outstanding quantities without going below zero", () => {
@@ -93,27 +93,27 @@ describe("Deco payload helpers", () => {
   it("rejects receive quantities that exceed outstanding customer order quantities", () => {
     assert.throws(
       () =>
-      buildReceiveStockPayloads({
-        purchaseOrders: [
-          {
-            id: 101,
-            po_number: "PO-1001",
-            purchase_order_lines: [
-              {
-                id: 501,
-                customer_order_lines: [
-                  {
-                    workflow_item_id: 9001,
-                    qty_ordered: 4,
-                    qty_received: 2,
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-        selections: [{ workflowItemId: 9001, quantity: 3 }],
-      }),
+        buildReceiveStockPayloads({
+          purchaseOrders: [
+            {
+              id: 101,
+              po_number: "PO-1001",
+              purchase_order_lines: [
+                {
+                  id: 501,
+                  customer_order_lines: [
+                    {
+                      workflow_item_id: 9001,
+                      qty_ordered: 4,
+                      qty_received: 2,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          selections: [{ workflowItemId: 9001, quantity: 3 }],
+        }),
       /exceeds outstanding quantity/
     );
   });
