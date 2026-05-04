@@ -147,4 +147,18 @@ describe("Deco payload helpers", () => {
     assert.equal(body.get("changes[1][new_status]"), "3");
     assert.equal(body.get("changes[1][shipping_tracking_code]"), "1Z999");
   });
+
+  it("adds experimental carrier and shipping method fields to shipped changes", () => {
+    const body = buildUpdateOrderStatusBody({
+      orderId: "Order-1234",
+      newStatus: 3,
+      trackingNumber: "871146476531",
+      shippingCarrier: "UPS",
+      shippingMethod: "Ups 3 day select",
+      selections: [{ orderLineId: 11, workflowItemId: 9001 }],
+    });
+
+    assert.equal(body.get("changes[1][shipping_carrier]"), "UPS");
+    assert.equal(body.get("changes[1][shipping_method]"), "Ups 3 day select");
+  });
 });

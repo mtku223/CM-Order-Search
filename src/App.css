@@ -233,6 +233,14 @@
   min-width: 150px;
 }
 
+.carrier-input {
+  min-width: 135px;
+}
+
+.shipping-method-input {
+  min-width: 190px;
+}
+
 .quantity-input {
   width: 135px;
   margin-top: 6px;

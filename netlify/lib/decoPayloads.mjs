@@ -103,6 +103,8 @@ export function buildUpdateOrderStatusBody({
   orderId,
   newStatus,
   trackingNumber,
+  shippingCarrier,
+  shippingMethod,
   selections,
 }) {
   if (!orderId) {
@@ -146,6 +148,17 @@ export function buildUpdateOrderStatusBody({
         `changes[${changeIndex}][shipping_tracking_code]`,
         trackingNumber
       );
+
+      if (shippingCarrier) {
+        body.set(
+          `changes[${changeIndex}][shipping_carrier]`,
+          shippingCarrier
+        );
+      }
+
+      if (shippingMethod) {
+        body.set(`changes[${changeIndex}][shipping_method]`, shippingMethod);
+      }
     }
   });
 

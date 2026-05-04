@@ -39,9 +39,14 @@ export async function handler(event) {
   try {
     ensureCredentials();
 
-    const { action, orderId, selections, trackingNumber } = JSON.parse(
-      event.body || "{}"
-    );
+    const {
+      action,
+      orderId,
+      selections,
+      trackingNumber,
+      shippingCarrier,
+      shippingMethod,
+    } = JSON.parse(event.body || "{}");
     const newStatus = action === "ship" ? 3 : 2;
 
     if (!["produce", "ship"].includes(action)) {
@@ -54,6 +59,8 @@ export async function handler(event) {
       orderId,
       newStatus,
       trackingNumber,
+      shippingCarrier,
+      shippingMethod,
       selections,
     });
 

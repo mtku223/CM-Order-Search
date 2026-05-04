@@ -43,6 +43,7 @@ function OrderSearch() {
 
     let modifiedSearchTerm = searchQuery;
     setSelectedTab("Order Info");
+    clearProductionTaskState();
     if (!searchQuery.toLowerCase().startsWith("order-")) {
       modifiedSearchTerm = "Order-" + searchQuery;
     }
@@ -124,8 +125,24 @@ function OrderSearch() {
   const [productionSelections, setProductionSelections] = useState({});
   const [workflowQuantities, setWorkflowQuantities] = useState({});
   const [trackingNumber, setTrackingNumber] = useState("");
+  const [shippingCarrier, setShippingCarrier] = useState("");
+  const [shippingMethod, setShippingMethod] = useState("");
   const [productionActionLoading, setProductionActionLoading] = useState(null);
   const [productionActionMessage, setProductionActionMessage] = useState(null);
+
+  const clearProductionSelectionState = () => {
+    setProductionSelections({});
+    setWorkflowQuantities({});
+    setTrackingNumber("");
+    setShippingCarrier("");
+    setShippingMethod("");
+  };
+
+  const clearProductionTaskState = () => {
+    clearProductionSelectionState();
+    setProductionActionLoading(null);
+    setProductionActionMessage(null);
+  };
 
   // CSS for clickable terms
   const clickableStyle = {
@@ -646,6 +663,8 @@ X4R511 / Zip: 20817</p>
             orderId: order.order_id,
             selections: selectedEntries,
             trackingNumber: trackingNumber.trim(),
+            shippingCarrier: shippingCarrier.trim(),
+            shippingMethod: shippingMethod.trim(),
           };
 
     setProductionActionLoading(action);
@@ -666,6 +685,7 @@ X4R511 / Zip: 20817</p>
       }
 
       await refreshOrderData(order);
+      clearProductionSelectionState();
       setSelectedTab("Line Items");
       setProductionActionMessage({
         type: "success",
@@ -723,6 +743,26 @@ X4R511 / Zip: 20817</p>
             onChange={(e) => setTrackingNumber(e.target.value)}
             placeholder="Tracking number"
             className="input-compact tracking-input"
+          />
+          <select
+            value={shippingCarrier}
+            onChange={(e) => setShippingCarrier(e.target.value)}
+            className="input-compact carrier-input"
+            aria-label="Shipping carrier"
+          >
+            <option value="">Carrier (optional)</option>
+            <option value="UPS">UPS</option>
+            <option value="FedEx">FedEx</option>
+            <option value="USPS">USPS</option>
+            <option value="DHL">DHL</option>
+            <option value="Custom">Custom</option>
+          </select>
+          <input
+            type="text"
+            value={shippingMethod}
+            onChange={(e) => setShippingMethod(e.target.value)}
+            placeholder="Shipping method (optional)"
+            className="input-compact shipping-method-input"
           />
           <button
             type="button"
