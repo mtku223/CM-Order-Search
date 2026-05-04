@@ -7,12 +7,11 @@ import {
   Button,
   PluginHeader,
   PluginLayout,
-  TabGroup,
-  Tab,
   Accordion,
   AccordionSection,
 } from "@frontapp/ui-kit";
 import OrderStatusBubble from "./OrderStatus";
+import { getProductImages } from "../lib/productImages.mjs";
 
 function KeyValueRow({ label, children }) {
   return (
@@ -835,6 +834,54 @@ X4R511 / Zip: 20817</p>
     );
   };
 
+  const renderProductImages = (lineItem) => {
+    const productImages = getProductImages(lineItem);
+
+    if (productImages.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="product-image-strip">
+        {productImages.slice(0, 4).map((image, index) => (
+          <a
+            key={`${image.url}-${index}`}
+            href={image.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="product-image-link"
+            title={image.label}
+          >
+            <img
+              src={image.url}
+              alt={image.label}
+              className="product-image-thumb"
+              loading="lazy"
+            />
+            <span>{image.source === "attachment" ? "Attachment" : "View"}</span>
+          </a>
+        ))}
+      </div>
+    );
+  };
+
+  const renderTabs = () => (
+    <div className="tabs-wrap" role="tablist" aria-label="Order sections">
+      {tabs.map((tab) => (
+        <button
+          key={tab}
+          type="button"
+          role="tab"
+          aria-selected={tab === selectedTab}
+          className={`app-tab ${tab === selectedTab ? "app-tab-active" : ""}`}
+          onClick={() => setSelectedTab(tab)}
+        >
+          {tab}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <PluginLayout>
       <div className="App sidebar-shell">
@@ -848,18 +895,7 @@ X4R511 / Zip: 20817</p>
         </div>
         {orderData && orderData.orders && orderData.orders.length > 0 && (
           <>
-            <div className="tabs-wrap">
-              <TabGroup>
-                {tabs.map((tab) => (
-                  <Tab
-                    key={tab}
-                    name={tab}
-                    isSelected={tab === selectedTab}
-                    onClick={() => setSelectedTab(tab)}
-                  />
-                ))}
-              </TabGroup>
-            </div>
+            {renderTabs()}
             {orderData.orders.map((order) => {
               const backendOrderId = extractBackendOrderId(order);
               const backendOrderUrl = backendOrderId
@@ -1018,6 +1054,7 @@ X4R511 / Zip: 20817</p>
                           className="line-item-main"
                         >
                           <div className="line-item-details">
+                            {renderProductImages(lineItem)}
                             {renderLineItemProductionControls(order, lineItem)}
                             <div className="info-row">
                               <span>Quantity:</span> <span>{lineItem.qty}</span>
@@ -1077,6 +1114,7 @@ X4R511 / Zip: 20817</p>
                           className="line-item-freeform"
                         >
                           <div className="line-item-details">
+                            {renderProductImages(lineItem)}
                             {renderLineItemProductionControls(order, lineItem)}
                             <div className="info-row">
                               <span>Quantity:</span> <span>{lineItem.qty}</span>

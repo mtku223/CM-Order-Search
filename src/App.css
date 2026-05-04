@@ -25,10 +25,38 @@
 }
 
 .tabs-wrap {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 4px;
   border: 1px solid #dbe5ef;
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 4px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.app-tab {
+  border: 0;
+  border-radius: 9px;
+  padding: 8px 7px;
+  background: transparent;
+  color: #475569;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  transition: background 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+
+.app-tab:hover {
+  background: rgba(255, 255, 255, 0.65);
+  color: #0f172a;
+}
+
+.app-tab-active {
   background: #ffffff;
-  border-radius: 8px;
-  padding: 2px;
+  color: #0f172a;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
 }
 
 .content-card {
@@ -100,6 +128,48 @@
 
 .line-item-details {
   font-size: 12px;
+}
+
+.product-image-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.product-image-link {
+  display: block;
+  overflow: hidden;
+  border: 1px solid #dbe5ef;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #475569;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+.product-image-link:hover {
+  border-color: #93c5fd;
+  color: #0369a1;
+}
+
+.product-image-thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: #f8fafc;
+}
+
+.product-image-link span {
+  display: block;
+  padding: 5px 6px;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .production-task-toolbar,
