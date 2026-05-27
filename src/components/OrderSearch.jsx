@@ -528,6 +528,38 @@ X4R511 / Zip: 20817</p>
       return total + Math.max(ordered - received, 0);
     }, 0);
 
+  const getWorkflowDefaultQuantity = (workflowItem) => {
+    const produced = Number(workflowItem.qty_produced ?? 0);
+    const shipped = Number(workflowItem.qty_shipped ?? 0);
+    const shipOutstanding = Math.max(produced - shipped, 0);
+
+    if (shipOutstanding > 0) {
+      return shipOutstanding;
+    }
+
+    const receiveOutstanding = getWorkflowReceiveOutstanding(workflowItem);
+    if (receiveOutstanding > 0) {
+      return receiveOutstanding;
+    }
+
+    return 1;
+  };
+
+  const setWorkflowQuantityDefault = (selectionKey, workflowItem) => {
+    setWorkflowQuantities((prev) => ({
+      ...prev,
+      [selectionKey]: String(getWorkflowDefaultQuantity(workflowItem)),
+    }));
+  };
+
+  const clearWorkflowQuantity = (selectionKey) => {
+    setWorkflowQuantities((prev) => {
+      const next = { ...prev };
+      delete next[selectionKey];
+      return next;
+    });
+  };
+
   const getWorkflowLabel = (workflowItem, index) => {
     const labelParts = [
       workflowItem.vendor_sku,
@@ -576,6 +608,16 @@ X4R511 / Zip: 20817</p>
   const handleLineItemSelection = (order, lineItem, isSelected) => {
     const workflowItems = getLineItemWorkflowItems(lineItem);
 
+    workflowItems.forEach((workflowItem) => {
+      const selectionKey = getWorkflowKey(order, lineItem, workflowItem);
+
+      if (isSelected) {
+        setWorkflowQuantityDefault(selectionKey, workflowItem);
+      } else {
+        clearWorkflowQuantity(selectionKey);
+      }
+    });
+
     setProductionSelections((prev) => {
       const nextSelections = { ...prev };
 
@@ -611,6 +653,12 @@ X4R511 / Zip: 20817</p>
       workflowItem,
       index
     );
+
+    if (isSelected) {
+      setWorkflowQuantityDefault(selection.key, workflowItem);
+    } else {
+      clearWorkflowQuantity(selection.key);
+    }
 
     setProductionSelections((prev) => {
       const nextSelections = { ...prev };
@@ -855,16 +903,21 @@ X4R511 / Zip: 20817</p>
                   {workflowItem.qty_shipped ?? "N/A"}
                 </div>
                 {isSelected && (
-                  <input
-                    type="number"
-                    min="1"
-                    value={workflowQuantities[selectionKey] || ""}
-                    onChange={(e) =>
-                      handleWorkflowQuantityChange(selectionKey, e.target.value)
-                    }
-                    placeholder="Auto outstanding"
-                    className="input-compact quantity-input"
-                  />
+                  <label className="workflow-quantity-field">
+                    <span>Qty</span>
+                    <input
+                      type="number"
+                      min="1"
+                      value={workflowQuantities[selectionKey] || ""}
+                      onChange={(e) =>
+                        handleWorkflowQuantityChange(
+                          selectionKey,
+                          e.target.value
+                        )
+                      }
+                      className="input-compact quantity-input"
+                    />
+                  </label>
                 )}
               </div>
             );
